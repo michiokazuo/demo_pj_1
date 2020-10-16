@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Công Việc</title>
+    <th:block th:replace="~{/fragment/app-fragment :: head-resource}"></th:block>
+</head>
+<body>
+<menu th:replace="~{/fragment/app-fragment :: menu}"></menu>
+<main>
+    <!-- Modal -->
+    <div class="modal fade" id="modal-task" tabindex="-1"
+         aria-labelledby="detail-task" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detail-task">Chi tiết công
+                        việc</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <form class="form-post row" action="">
+                                    <div class="form-group bg-light col-6">
+                                        <label for="name"><strong>Tên</strong></label> <input
+                                            type="text" class="form-control bg-light " name="name" id="name"
+                                            placeholder="Nhập tên công việc">
+                                        <div class="invalid-feedback">Bạn chưa nhập tên công
+                                            việc.
+                                        </div>
+                                    </div>
+                                    <div class="form-group bg-light col-6">
+                                        <label for="complete_date"><strong>Ngày hoàn
+                                            thành</strong></label> <input class="form-control bg-light " type="date"
+                                                                          name="complete_date" id="complete_date">
+                                        <div class="invalid-feedback">Bạn chưa chọn ngày hoàn
+                                            thành.
+                                        </div>
+                                    </div>
+                                    <div class="form-group bg-light col-6">
+                                        <label for="create_date"><strong>Ngày tạo</strong></label> <input
+                                            class="form-control bg-light " type="date" name="create_date"
+                                            id="create_date">
+                                        <div class="invalid-feedback">Bạn chưa chọn ngày tạo.</div>
+                                    </div>
+                                    <div class="form-group bg-light col-6">
+                                        <label for="end_date"><strong>Ngày kết thúc</strong></label> <input
+                                            class="form-control bg-light " type="date" name="end_date"
+                                            id="end_date">
+                                        <div class="invalid-feedback">Bạn chưa chọn ngày kết
+                                            thúc.
+                                        </div>
+                                    </div>
+                                    <div class="form-group bg-light col-6">
+                                        <label for="description"><strong>Mô tả</strong></label>
+                                        <textarea class="form-control bg-light" name="description"
+                                                  id="description" placeholder="Nhập mô tả"></textarea>
+                                        <div class="invalid-feedback">Bạn chưa nhập mô tả.</div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" id="btn-save">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-delete" tabindex="-1"
+         aria-labelledby="delete-task" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delete-task">Xác nhận thao
+                        tác</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">Bạn có chắc chắn muốn xóa công việc
+                    này không ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" id="btn-delete">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="title-page">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1>Quản lý Công Việc</h1>
+                </div>
+                <div class="col-12">
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tool-page">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" id="btn-add-task"
+                            data-target="#modal-task">
+                        <i class="fas fa-plus"></i> Thêm công việc
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control bg-light" name="sort" id="sort">
+                        <option>Sắp xếp</option>
+                        <option>A -> Z</option>
+                        <option>Z -> A</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-data mt-3 mb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover bg-white">
+                            <thead>
+                            <tr>
+                                <th scope="col">STT</th>
+                                <th scope="col">Tên</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Nhân viên tham gia</th>
+                                <th scope="col">Hành động</th>
+                            </tr>
+                            <tr>
+                                <td scope="row"></td>
+                                <td><input class="form-control bg-light" type="text"
+                                           id="name-search" name="name-search"></td>
+                                <td><input class="form-control bg-light" type="date"
+                                           name="create_date_search" id="create_date_search"></td>
+                                <td><select class="form-control bg-light" name="status" id="status_search">
+                                    <option>Tất cả</option>
+                                    <option>Đang thực hiện</option>
+                                    <option>Hoàn thành</option>
+                                    <option>Quá hạn</option>
+                                </select></td>
+                                <td scope="row"></td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" id="btn-search">
+                                        <i class="fas fa-search"></i> Tìm kiếm
+                                    </button>
+                                </td>
+                            </tr>
+                            </thead>
+                            <tbody id="table-data">
+
+                            <tr>
+                                <th scope="row">11</th>
+                                <td>Mark</td>
+                                <td>Mark</td>
+                                <td><span class="badge badge-danger">Quá hạn</span></td>
+                                <td>Mark</td>
+                                <td>
+                                    <button type="button" class="btn btn-info"
+                                            data-toggle="modal" data-target="#modal-task">
+                                        <i class="far fa-eye"></i>
+                                        Chi tiết
+                                    </button>
+                                    <button type="button" class="btn btn-danger"
+                                            data-toggle="modal" data-target="#modal-delete">
+                                        <i class="far fa-trash-alt"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{/fragment/app-fragment :: footer}"></footer>
+<script th:src="@{/js/model/ajax_model_task.js}"></script>
+<script th:src="@{/js/pages/ajax_page_task.js}"></script>
+</body>
+</html>

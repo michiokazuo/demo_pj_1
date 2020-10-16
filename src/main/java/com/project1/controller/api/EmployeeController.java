@@ -1,30 +1,29 @@
 package com.project1.controller.api;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.project1.dto.TaskDTO;
-import com.project1.entities.data.Task;
-import com.project1.service.TaskService;
+import com.project1.dto.EmployeeDTO;
+import com.project1.entities.data.Employee;
+import com.project1.service.EmployeeService;
 
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("api/public/task/*")
+@RequestMapping("api/public/employee/*")
 @AllArgsConstructor
-public class TaskController {
+public class EmployeeController {
 
-    private final TaskService taskService;
+    private final EmployeeService employeeService;
 
     @GetMapping("find-all")
     public ResponseEntity<Object> findAll() {
 
         try {
-            List<TaskDTO> taskDTOs = taskService.findAll();
-            return taskDTOs != null ? ResponseEntity.ok(taskDTOs) : ResponseEntity.noContent().build();
+            List<EmployeeDTO> employeeDTOs = employeeService.findAll();
+            return employeeDTOs != null ? ResponseEntity.ok(employeeDTOs) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
@@ -35,8 +34,8 @@ public class TaskController {
     public ResponseEntity<Object> findById(@PathVariable("id") Integer id) {
 
         try {
-            TaskDTO taskDTO = taskService.findById(id);
-            return taskDTO != null ? ResponseEntity.ok(taskDTO) : ResponseEntity.noContent().build();
+            EmployeeDTO EmployeeDTO = employeeService.findById(id);
+            return EmployeeDTO != null ? ResponseEntity.ok(EmployeeDTO) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
@@ -45,15 +44,15 @@ public class TaskController {
 
     @GetMapping("search-sort")
     public ResponseEntity<Object> search_sort(@RequestParam(name = "name", required = false) String name,
-                                              @RequestParam(name = "createDate", required = false) Date createDate,
-                                              @RequestParam(name = "status", required = false) Byte status,
+                                              @RequestParam(name = "position", required = false) String position,
                                               @RequestParam(name = "field", required = false) String field,
                                               @RequestParam(name = "isASC", required = false) Boolean isASC) {
 
         try {
-            List<TaskDTO> taskDTOs = taskService.search_sort(new TaskDTO(Task.builder().name(name)
-                    .createDate(createDate).build(), null), field, isASC, status);
-            return taskDTOs != null ? ResponseEntity.ok(taskDTOs) : ResponseEntity.noContent().build();
+            List<EmployeeDTO> employeeDTOs = employeeService.search_sort(
+                    new EmployeeDTO(Employee.builder().name(name).position(position).build(), null), field,
+                    isASC, null);
+            return employeeDTOs != null ? ResponseEntity.ok(employeeDTOs) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
@@ -61,9 +60,9 @@ public class TaskController {
     }
 
     @PostMapping("insert")
-    public ResponseEntity<Object> insert(@RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<Object> insert(@RequestBody EmployeeDTO employeeDTO) {
         try {
-            TaskDTO dto = taskService.insert(taskDTO);
+            EmployeeDTO dto = employeeService.insert(employeeDTO);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,9 +71,10 @@ public class TaskController {
     }
 
     @PutMapping("update")
-    public ResponseEntity<Object> update(@RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<Object> update(@RequestBody EmployeeDTO employeeDTO) {
         try {
-            TaskDTO dto = taskService.insert(taskDTO);
+            // In employeeDTO if update progress then taskToEmployees has only one taskToEmployee
+            EmployeeDTO dto = employeeService.update(employeeDTO);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,13 +84,16 @@ public class TaskController {
 
     @DeleteMapping("delete/{id}")
     public ResponseEntity<Object> delete(@PathVariable("id") Integer id) {
+
         try {
-            if (taskService.delete(id)) {
+            if (employeeService.delete(id)) {
                 return ResponseEntity.ok("Delete Successful");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return ResponseEntity.badRequest().build();
     }
+
 }

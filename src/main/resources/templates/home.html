@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<title>Trang Chủ</title>
+<th:block th:replace="~{/fragment/app-fragment :: head-resource}"></th:block>
+</head>
+<body>
+	<menu th:replace="~{/fragment/app-fragment :: menu}"></menu>
+	<main>
+		<div class="title-page">
+			<div class="container">
+				<div class="row">
+					<div class="col-12 text-center">
+						<h1>Trang Chủ</h1>
+					</div>
+					<div class="col-12">
+						<hr>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	<footer th:replace="~{/fragment/app-fragment :: footer}"></footer>
+</body>
+</html>

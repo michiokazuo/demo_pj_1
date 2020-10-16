@@ -25,22 +25,20 @@ public class Task {
 	@Column(name = "`\r\ndescription`")
 	private String description;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.DATE)
 	@Column(name = "complete_date")
 	private Date completeDate;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.DATE)
 	@Column(name = "create_date")
 	private Date createDate;
 
-	private Boolean deleted;
+	@Builder.Default
+	private Boolean deleted = false;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.DATE)
 	@Column(name = "end_date")
 	private Date endDate;
-
-	@Column(name = "max_people_join")
-	private byte maxPeopleJoin;
 
 	private String name;
 

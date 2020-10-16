@@ -5,6 +5,7 @@ import javax.persistence.*;
 import com.project1.entities.key.TaskToEmployeePK;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,14 +14,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TaskToEmployee {
 
 	@EmbeddedId
 	private TaskToEmployeePK id;
 
-	private Boolean deleted;
+	@Builder.Default
+	private Boolean deleted = false;
 
-	private Integer progress;
+	@Builder.Default
+	private Integer progress = 0;
 
 	@ManyToOne
 	@MapsId("employeeId")

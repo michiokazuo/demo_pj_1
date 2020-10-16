@@ -15,20 +15,21 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Employee {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-	private Boolean deleted;
+    @Builder.Default
+    private Boolean deleted = false;
 
-	private String email;
+    private String email;
 
-	private String name;
+    private String name;
 
-	private String password;
+    private String position;
 
-	private String position;
+    private String department;
 
-	private String role;
+    private String phone;
 
 }
