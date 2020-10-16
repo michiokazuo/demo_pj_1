@@ -157,7 +157,13 @@ function confirmSaveLink() {
                 await taskToEmployeeInsert(taskToEmployee)
                     .then(rs => {
                         if (rs.status === 200) {
-                            mess = "Thêm không thành công.";
+                            for (let i = 0; i < listTaskToEmployee.length; i++) {
+                                if (listTaskToEmployee[i].task.id === rs.data.task.id) {
+                                    listTaskToEmployee[i] = rs.data;
+                                    break;
+                                }
+                            }
+                            mess = "Thêm thành công.";
                             check = true;
                         }
                     })
@@ -192,8 +198,8 @@ function confirmDeleteLink() {
             await taskToEmployeeDelete(taskToEmployee)
                 .then(function (rs) {
                     if (rs.status === 200) {
-                        listTask = listTask.filter((data, index) => {
-                            return index !== (indexTask - 0);
+                        listTaskToEmployee[indexTask - 0].taskToEmployees = listTaskToEmployee[indexTask - 0].taskToEmployees.filter((data, index) => {
+                            return index !== (indexTTE - 0);
                         });
 
                         mess = "Xóa thành công.";
