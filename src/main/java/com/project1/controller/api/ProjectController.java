@@ -70,7 +70,7 @@ public class ProjectController {
     @PutMapping("update")
     public ResponseEntity<Object> update(@RequestBody ProjectDTO projectDTO) {
         try {
-            ProjectDTO dto = projectService.insert(projectDTO);
+            ProjectDTO dto = projectService.update(projectDTO);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();

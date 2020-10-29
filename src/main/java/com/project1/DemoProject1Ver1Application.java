@@ -12,8 +12,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class DemoProject1Ver1Application implements CommandLineRunner {
 
-    private final ProjectService projectService;
-
     public static void main(String[] args) {
         SpringApplication.run(DemoProject1Ver1Application.class, args);
     }
@@ -21,7 +19,5 @@ public class DemoProject1Ver1Application implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        System.out.println(projectService.findAll());
     }
-
 }

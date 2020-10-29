@@ -165,6 +165,11 @@ function taskToEmployee() {
             .then(function (rs) {
                 if (rs.status === 200) {
                     check = true;
+                    if (!listEmployee[indexEmployee - 0].taskToEmployees)
+                        listEmployee[indexEmployee - 0].taskToEmployees = [];
+                    if (!listTask[indexTask - 0].taskToEmployees)
+                        listTask[indexTask - 0].taskToEmployees = [];
+
                     listEmployee[indexEmployee - 0].taskToEmployees.push(rs.data);
                     listTask[indexTask - 0].taskToEmployees.push(rs.data);
                 }

@@ -79,7 +79,7 @@ public class TaskController {
     @PutMapping("update")
     public ResponseEntity<Object> update(@RequestBody TaskDTO taskDTO) {
         try {
-            TaskDTO dto = taskService.insert(taskDTO);
+            TaskDTO dto = taskService.update(taskDTO);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();

@@ -64,6 +64,7 @@ public class TaskServiceImpl implements TaskService {
         if (taskDTO == null || taskDTO.getTask() == null) return null;
         Task task = taskDTO.getTask();
         task.setDeleted(false);
+        System.out.println(task);
         return checkSave(task) ? findById(taskRepository.save(task).getId()) : null;
     }
 
