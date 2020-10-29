@@ -2,6 +2,7 @@ package com.project1.controller.api;
 
 import java.util.List;
 
+import com.project1.dto.EmployeeDTO;
 import com.project1.entities.data.Employee;
 import com.project1.entities.data.Task;
 import com.project1.repository.EmployeeRepository;
@@ -49,8 +50,8 @@ public class TaskToEmployeeController {
         }
     }
 
-    @GetMapping("search")
-    public ResponseEntity<Object> search(@RequestParam(name = "tName", required = false) String tName,
+    @GetMapping("search-by-name")
+    public ResponseEntity<Object> searchByName(@RequestParam(name = "tName", required = false) String tName,
                                          @RequestParam(name = "eName", required = false) String eName) {
 
         try {
@@ -62,10 +63,45 @@ public class TaskToEmployeeController {
         }
     }
 
+    @GetMapping("search")
+    public ResponseEntity<Object> search(@RequestParam(name = "status", required = false) Byte status,
+                                         @RequestParam(name = "employeeId", required = false) Integer employeeId) {
+
+        try {
+            List<TaskToEmployee> taskToEmployees = taskToEmployeeService.search(status, employeeId);
+            return taskToEmployees != null ? ResponseEntity.ok(taskToEmployees) : ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("insert-to-task")
+    public ResponseEntity<Object> insertToTask(@RequestBody TaskToEmployee taskToEmployee) {
+        try {
+            TaskDTO dto = taskToEmployeeService.insertToTask(taskToEmployee);
+            return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("insert-to-employee")
+    public ResponseEntity<Object> insertToEmployee(@RequestBody TaskToEmployee taskToEmployee) {
+        try {
+            EmployeeDTO dto = taskToEmployeeService.insertToEmployee(taskToEmployee);
+            return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PostMapping("insert")
     public ResponseEntity<Object> insert(@RequestBody TaskToEmployee taskToEmployee) {
         try {
-            TaskDTO dto = taskToEmployeeService.insert(taskToEmployee);
+            TaskToEmployee dto = taskToEmployeeService.insert(taskToEmployee);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();

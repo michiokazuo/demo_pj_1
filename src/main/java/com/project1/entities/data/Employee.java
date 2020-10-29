@@ -32,4 +32,9 @@ public class Employee {
 
     private String phone;
 
+    private String password;
+
+    @ManyToOne
+    @JoinColumn(name = "role", referencedColumnName = "id", columnDefinition = "default 1")
+    private Role role;
 }

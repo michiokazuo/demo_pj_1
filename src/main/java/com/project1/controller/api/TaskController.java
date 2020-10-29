@@ -3,6 +3,7 @@ package com.project1.controller.api;
 import java.util.Date;
 import java.util.List;
 
+import com.project1.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,8 @@ import lombok.AllArgsConstructor;
 public class TaskController {
 
     private final TaskService taskService;
+
+    private final ProjectRepository projectRepository;
 
     @GetMapping("find-all")
     public ResponseEntity<Object> findAll() {
@@ -48,11 +51,13 @@ public class TaskController {
                                               @RequestParam(name = "createDate", required = false) Date createDate,
                                               @RequestParam(name = "status", required = false) Byte status,
                                               @RequestParam(name = "field", required = false) String field,
-                                              @RequestParam(name = "isASC", required = false) Boolean isASC) {
+                                              @RequestParam(name = "isASC", required = false) Boolean isASC,
+                                              @RequestParam(name = "idProject", required = false) Integer idProject) {
 
         try {
             List<TaskDTO> taskDTOs = taskService.search_sort(new TaskDTO(Task.builder().name(name)
-                    .createDate(createDate).build(), null), field, isASC, status);
+                    .createDate(createDate).project(projectRepository.findByIdAndDeletedFalse(idProject)).build(),
+                    null), field, isASC, status);
             return taskDTOs != null ? ResponseEntity.ok(taskDTOs) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();

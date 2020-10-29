@@ -1,32 +1,28 @@
 package com.project1.controller.api;
 
-import java.util.List;
-
-import com.project1.repository.RoleRepository;
+import com.project1.dto.ProjectDTO;
+import com.project1.entities.data.Project;
+import com.project1.service.ProjectService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.project1.dto.EmployeeDTO;
-import com.project1.entities.data.Employee;
-import com.project1.service.EmployeeService;
-
-import lombok.AllArgsConstructor;
+import java.util.Date;
+import java.util.List;
 
 @RestController
-@RequestMapping("api/public/employee/*")
+@RequestMapping("api/public/project/*")
 @AllArgsConstructor
-public class EmployeeController {
+public class ProjectController {
 
-    private final EmployeeService employeeService;
-
-    private final RoleRepository roleRepository;
+    private final ProjectService projectService;
 
     @GetMapping("find-all")
     public ResponseEntity<Object> findAll() {
 
         try {
-            List<EmployeeDTO> employeeDTOs = employeeService.findAll();
-            return employeeDTOs != null ? ResponseEntity.ok(employeeDTOs) : ResponseEntity.noContent().build();
+            List<ProjectDTO> projectDTOS = projectService.findAll();
+            return projectDTOS != null ? ResponseEntity.ok(projectDTOS) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
@@ -37,8 +33,8 @@ public class EmployeeController {
     public ResponseEntity<Object> findById(@PathVariable("id") Integer id) {
 
         try {
-            EmployeeDTO EmployeeDTO = employeeService.findById(id);
-            return EmployeeDTO != null ? ResponseEntity.ok(EmployeeDTO) : ResponseEntity.noContent().build();
+            ProjectDTO projectDTO = projectService.findById(id);
+            return projectDTO != null ? ResponseEntity.ok(projectDTO) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
@@ -47,27 +43,25 @@ public class EmployeeController {
 
     @GetMapping("search-sort")
     public ResponseEntity<Object> search_sort(@RequestParam(name = "name", required = false) String name,
-                                              @RequestParam(name = "position", required = false) String position,
+                                              @RequestParam(name = "createDate", required = false) Date createDate,
+                                              @RequestParam(name = "status", required = false) Byte status,
                                               @RequestParam(name = "field", required = false) String field,
                                               @RequestParam(name = "isASC", required = false) Boolean isASC) {
 
         try {
-            List<EmployeeDTO> employeeDTOs = employeeService.search_sort(
-                    new EmployeeDTO(Employee.builder().name(name).position(position).build(), null), field,
-                    isASC, null);
-            return employeeDTOs != null ? ResponseEntity.ok(employeeDTOs) : ResponseEntity.noContent().build();
+            List<ProjectDTO> projectDTOS = projectService.search_sort(new ProjectDTO(Project.builder().name(name)
+                    .createDate(createDate).build(), null), field, isASC, status);
+            return projectDTOS != null ? ResponseEntity.ok(projectDTOS) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @PostMapping("insert/{role}")
-    public ResponseEntity<Object> insert(@RequestBody EmployeeDTO employeeDTO,
-                                         @PathVariable("role") Integer role) {
+    @PostMapping("insert")
+    public ResponseEntity<Object> insert(@RequestBody ProjectDTO projectDTO) {
         try {
-            employeeDTO.getEmployee().setRole(roleRepository.findById(role).orElse(null));
-            EmployeeDTO dto = employeeService.insert(employeeDTO);
+            ProjectDTO dto = projectService.insert(projectDTO);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,10 +70,9 @@ public class EmployeeController {
     }
 
     @PutMapping("update")
-    public ResponseEntity<Object> update(@RequestBody EmployeeDTO employeeDTO) {
+    public ResponseEntity<Object> update(@RequestBody ProjectDTO projectDTO) {
         try {
-            // In employeeDTO if update progress then taskToEmployees has only one taskToEmployee
-            EmployeeDTO dto = employeeService.update(employeeDTO);
+            ProjectDTO dto = projectService.insert(projectDTO);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,16 +82,13 @@ public class EmployeeController {
 
     @DeleteMapping("delete/{id}")
     public ResponseEntity<Object> delete(@PathVariable("id") Integer id) {
-
         try {
-            if (employeeService.delete(id)) {
+            if (projectService.delete(id)) {
                 return ResponseEntity.ok("Delete Successful");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return ResponseEntity.badRequest().build();
     }
-
 }

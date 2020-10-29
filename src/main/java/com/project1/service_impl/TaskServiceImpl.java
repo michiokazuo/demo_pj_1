@@ -44,7 +44,7 @@ public class TaskServiceImpl implements TaskService {
             Task task = taskRepository.findByIdAndDeletedFalse(id);
             List<TaskToEmployee> taskToEmployees = taskToEmployeeRepository.findByTaskIdAndDeletedFalse(task.getId());
 
-            TaskDTO taskDTO = new TaskDTO(task, new ArrayList<TaskToEmployee>());
+            TaskDTO taskDTO = new TaskDTO(task, new ArrayList<>());
 
             for (TaskToEmployee t : taskToEmployees) {
                 t.setTask(null);
@@ -62,27 +62,32 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO update(TaskDTO taskDTO) throws Exception {
         if (taskDTO == null || taskDTO.getTask() == null) return null;
-        taskDTO.getTask().setDeleted(false);
-        return checkLogicDate(taskDTO.getTask()) ? findById(taskRepository.save(taskDTO.getTask()).getId()) : null;
+        Task task = taskDTO.getTask();
+        task.setDeleted(false);
+        return checkSave(task) ? findById(taskRepository.save(task).getId()) : null;
     }
 
     @Override
     public boolean delete(Integer id) throws Exception {
-        return id != null && id > 0 && (taskRepository.deleteCustom(id) > 0 && taskToEmployeeRepository.deleteCustomByTaskId(id) >= 0);
+        return id != null && id > 0 && (taskRepository.deleteCustom(id) >= 0
+                && taskToEmployeeRepository.deleteCustomByTaskId(id) >= 0);
     }
 
     @Override
-    public List<TaskDTO> search_sort(TaskDTO t, String field, Boolean isASC, Byte status) throws Exception {
+    public List<TaskDTO> search_sort(TaskDTO taskDTO, String field, Boolean isASC, Byte status) throws Exception {
         long msDay = 24 * 60 * 60 * 1000;
+        Task t = new Task();
+        if (taskDTO != null && taskDTO.getTask() != null) {
+            t = taskDTO.getTask();
+            t.setDeleted(false);
+        }
         List<Task> tasks = (field != null && isASC != null)
                 ? taskRepository.findAll(
-                Example.of(
-                        (t != null && t.getTask() != null) ? t.getTask() : new Task(),
-                        ExampleMatcher.matchingAll()
-                                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
+                Example.of(t, ExampleMatcher.matchingAll()
+                        .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
                 Sort.by(isASC ? Sort.Direction.ASC : Sort.Direction.DESC, field))
-                : taskRepository.findAll(Example.of((t != null && t.getTask() != null) ? t.getTask() : new Task(),
-                ExampleMatcher.matchingAll().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
+                : taskRepository.findAll(Example.of(t, ExampleMatcher.matchingAll()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
 
         // status : null -- all
         //          1 -- complete
@@ -91,41 +96,65 @@ public class TaskServiceImpl implements TaskService {
         if (status != null) {
             Date date = new Date();
             tasks = status == 0 ? tasks.stream()
-                    .filter(task -> (task.getEndDate().getTime() > date.getTime() || Math.abs(date.getTime() - task.getEndDate().getTime()) < msDay))
+                    .filter(task -> task.getCompleteDate() == null && (task.getEndDate().getTime() > date.getTime()
+                            || Math.abs(date.getTime() - task.getEndDate().getTime()) < msDay))
                     .collect(Collectors.toList())
-                    : (status == -1 ? tasks.stream().filter(task -> (task.getCompleteDate() == null && date.getTime() - task.getEndDate().getTime() >= msDay))
+                    : (status == -1 ? tasks.stream().filter(task -> (task.getCompleteDate() == null
+                    && date.getTime() - task.getEndDate().getTime() >= msDay))
                     .collect(Collectors.toList())
                     : tasks.stream().filter(task -> task.getCompleteDate() != null).collect(Collectors.toList()));
         }
 
-        return convert.toDTO(tasks, taskToEmployeeRepository.findAllByDeletedFalse());
+        List<Integer> ids = new ArrayList<>();
+
+        for (Task ta : tasks) {
+            ids.add(ta.getId());
+        }
+
+        return convert.toDTO(tasks, taskToEmployeeRepository.findByTaskIdInAndDeletedFalse(ids));
     }
 
     @Override
-    public TaskDTO insert(TaskDTO t) throws Exception {
-        if (t == null || t.getTask() == null) return null;
-        t.getTask().setDeleted(false);
-        return checkLogicDate(t.getTask()) ? findById(taskRepository.save(t.getTask()).getId()) : null;
+    public TaskDTO insert(TaskDTO taskDTO) throws Exception {
+        if (taskDTO == null || taskDTO.getTask() == null) return null;
+        Task task = taskDTO.getTask();
+        task.setDeleted(false);
+        task.setCompleteDate(null);
+        return checkSave(task) ? findById(taskRepository.save(task).getId()) : null;
     }
 
-    public boolean checkLogicDate(Task t) {
+    public boolean checkSave(Task task) {
 //        long msDay = 24 * 60 * 60;
         boolean rs = false;
-
-        if (t.getCompleteDate() == null) {
-            if (t.getEndDate().getTime() - t.getCreateDate().getTime() >= 0)
+        if (task.getEndDate().getTime() - task.getCreateDate().getTime() >= 0
+                && task.getProject().getCreateDate().getTime() - task.getCreateDate().getTime() <= 0
+                && task.getProject().getEndDate().getTime() - task.getEndDate().getTime() >= 0
+                && task.getProject().getCompleteDate() == null) // du an da hoan thanh ko cho chinh sua
+            if (task.getCompleteDate() == null) {
                 rs = true;
-        } else {
-            long complete_create = t.getCompleteDate().getTime() - t.getCreateDate().getTime();
+            } else {
+                long complete_create = task.getCompleteDate().getTime() - task.getCreateDate().getTime();
 //            long end_complete = t.getEndDate().getTime() - t.getCompleteDate().getTime();
 
-            // auto update end_date = complete_date when valid ????
-            if (complete_create >= 0) {
-                rs = true;
+                // auto update end_date = complete_date when valid ????
+                if (complete_create >= 0) {
+                    rs = true;
+                }
+
+                if (rs) {
+                    List<TaskToEmployee> taskToEmployees = taskToEmployeeRepository.findByTaskIdAndDeletedFalse(task.getId());
+
+                    if (taskToEmployees == null) rs = false;
+                    else
+                        for (TaskToEmployee taskToEmployee : taskToEmployees) {
+                            if (taskToEmployee.getProgress() != 100) {
+                                rs = false;
+                                break;
+                            }
+                        }
+                }
             }
-        }
 
         return rs;
     }
-
 }

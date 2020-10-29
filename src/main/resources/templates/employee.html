@@ -46,12 +46,14 @@
                                     </div>
                                     <div class="form-group bg-light col-6">
                                         <label for="email"><strong>Email</strong></label> <input
-                                            class="form-control bg-light " type="email" name="email" id="email" placeholder="Nhập email">
+                                            class="form-control bg-light " type="email" name="email" id="email"
+                                            placeholder="Nhập email">
                                         <div class="invalid-feedback">Bạn chưa nhập email.</div>
                                     </div>
                                     <div class="form-group bg-light col-6">
                                         <label for="phone"><strong>Số điện thoại</strong></label> <input
-                                            class="form-control bg-light " type="tel" name="phone" id="phone" placeholder="Nhập số điện thoại">
+                                            class="form-control bg-light " type="tel" name="phone" id="phone"
+                                            placeholder="Nhập số điện thoại">
                                         <div class="invalid-feedback">Bạn chưa nhập số điện thoại.
                                         </div>
                                     </div>
@@ -63,51 +65,6 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
                     <button type="button" class="btn btn-success" id="btn-save">Lưu</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modal-employee-progress" tabindex="-1"
-         aria-labelledby="detail-employee" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detail-product">Cập nhật tiến độ</h5>
-                    <button type="button" class="close" data-dismiss="modal"
-                            aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-12">
-                                <form class="form-post row" action="">
-                                    <div class="form-group bg-light col-6">
-                                        <label for="progress-name"><strong>Tên</strong></label> <input
-                                            type="text" class="form-control bg-light " name="progress-name" id="progress-name"
-                                            readonly disabled>
-                                    </div>
-                                    <div class="form-group bg-light col-6">
-                                        <label for="progress-task"><strong>Công việc</strong></label> <input
-                                            class="form-control bg-light " type="text" name="progress-task" id="progress-task"
-                                            readonly disabled>
-                                    </div>
-                                    <div class="form-group bg-light col-6">
-                                        <label for="progress"><strong>Tiến độ</strong></label> <input
-                                            class="form-control bg-light " type="number" min="0" max="100"
-                                            oninput="validity.valid||(value='');" name="progress"
-                                            id=progress>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-success" id="btn-progress">Cập nhật</button>
                 </div>
             </div>
         </div>
@@ -181,8 +138,7 @@
                                 <th scope="col">Tên</th>
                                 <th scope="col">Chức Vụ</th>
                                 <th scope="col">Công việc tham gia</th>
-                                <th scope="col">Tiến độ</th>
-                                <th scope="col" colspan="2">Hành động</th>
+                                <th scope="col">Hành động</th>
                             </tr>
                             <tr>
                                 <td scope="row"></td>
@@ -191,8 +147,8 @@
                                 <td><input class="form-control bg-light" type="text"
                                            id="position-search" name="position-search"></td>
                                 <td scope="row"></td>
-                                <td scope="row"></td>
-                                <td colspan="2">
+                                </td>
+                                <td>
                                     <button type="button" class="btn btn-primary" id="btn-search">
                                         <i class="fas fa-search"></i> Tìm kiếm
                                     </button>
@@ -201,18 +157,14 @@
                             </thead>
                             <tbody id="table-data">
                             <tr>
-                                <th scope="row" rowspan="3">11</th>
-                                <td rowspan="3">Mark</td>
-                                <td rowspan="3">Mark</td>
+                                <th scope="row">11</th>
                                 <td>Mark</td>
                                 <td>Mark</td>
+                                <td><a href="#" class="text-decoration-none text-light btn btn-success m-1">
+                                    <i class="fas fa-tasks"></i>
+                                    <span class="text-light"> Xem </span>
+                                </a></td>
                                 <td>
-                                    <button type="button" class="btn btn-warning update-progress"
-                                            data-toggle="modal" data-target="#modal-employee-progress">
-                                        <i class="fas fa-edit"></i> Cập nhật
-                                    </button>
-                                </td>
-                                <td rowspan="3">
                                     <button type="button" class="btn btn-info update-employee mt-1"
                                             data-toggle="modal" data-target="#modal-employee">
                                         <i class="far fa-eye"></i>
@@ -224,27 +176,6 @@
                                     </button>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Mark</td>
-                                <td>Mark</td>
-                                <td>
-                                    <button type="button" class="btn btn-warning update-progress"
-                                            data-toggle="modal" data-target="#modal-employee-progress">
-                                        <i class="fas fa-edit"></i> Cập nhật
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Mark</td>
-                                <td>Mark</td>
-                                <td>
-                                    <button type="button" class="btn btn-warning update-progress"
-                                            data-toggle="modal" data-target="#modal-employee-progress">
-                                        <i class="fas fa-edit"></i> Cập nhật
-                                    </button>
-                                </td>
-                            </tr>
-
                             </tbody>
                         </table>
                     </div>

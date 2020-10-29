@@ -5,13 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.project1.entities.data.TaskToEmployee;
 import com.project1.entities.key.TaskToEmployeePK;
-
-@Repository
 public interface TaskToEmployeeRepository extends JpaRepository<TaskToEmployee, TaskToEmployeePK> {
 
 	List<TaskToEmployee> findAllByDeletedFalse();
@@ -22,10 +19,17 @@ public interface TaskToEmployeeRepository extends JpaRepository<TaskToEmployee, 
 
 	List<TaskToEmployee> findByEmployeeIdInAndDeletedFalse(List<Integer> integers);
 
+	List<TaskToEmployee> findByTaskIdInAndDeletedFalse(List<Integer> integers);
+
 	@Query("update TaskToEmployee t set t.deleted = true where t.id.taskId = ?1")
 	@Modifying
 	@Transactional
 	int deleteCustomByTaskId(Integer id);
+
+	@Query("update TaskToEmployee t set t.deleted = true where t.id.taskId in ?1")
+	@Modifying
+	@Transactional
+	int deleteCustomByTaskIdIn(List<Integer> integers);
 
 	@Query("update TaskToEmployee t set t.deleted = true where t.id.employeeId = ?1")
 	@Modifying

@@ -8,8 +8,8 @@ function employeeFindById(q) {
     return ajaxGet(`${URL_EMPLOYEE}find-by-id/` + `${q}`);
 }
 
-function employeeInsert(e) {
-    return ajaxPost(`${URL_EMPLOYEE}insert`, e);
+function employeeInsert(e, id) {
+    return ajaxPost(`${URL_EMPLOYEE}insert/` + `${id}`, e);
 }
 
 function employeeUpdate(e) {

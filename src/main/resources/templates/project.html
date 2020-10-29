@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Công Việc</title>
+    <title>Dự Án</title>
     <th:block th:replace="~{/fragment/app-fragment :: head-resource}"></th:block>
 </head>
 <body>
 <menu th:replace="~{/fragment/app-fragment :: menu}"></menu>
 <main>
     <!-- Modal -->
-    <div class="modal fade" id="modal-task" tabindex="-1"
-         aria-labelledby="detail-task" aria-hidden="true">
+    <div class="modal fade" id="modal-project" tabindex="-1"
+         aria-labelledby="detail-project" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="detail-task">Chi tiết công
-                        việc</h5>
+                    <h5 class="modal-title" id="detail-project">Chi tiết dự án</h5>
                     <button type="button" class="close" data-dismiss="modal"
                             aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -29,14 +28,13 @@
                                         <label for="name"><strong>Tên</strong></label> <input
                                             type="text" class="form-control bg-light " name="name" id="name"
                                             placeholder="Nhập tên công việc">
-                                        <div class="invalid-feedback">Bạn chưa nhập tên công
-                                            việc.
+                                        <div class="invalid-feedback">Bạn chưa nhập tên dự án.
                                         </div>
                                     </div>
                                     <div class="form-group bg-light col-6">
-                                        <label for="complete_date"><strong>Ngày hoàn
-                                            thành</strong></label> <input class="form-control bg-light " type="date"
-                                                                          name="complete_date" id="complete_date">
+                                        <label for="complete_date"><strong>Ngày hoàn thành</strong></label> <input
+                                            class="form-control bg-light " type="date"
+                                            name="complete_date" id="complete_date">
                                         <div class="invalid-feedback">Bạn chưa chọn ngày hoàn
                                             thành.
                                         </div>
@@ -55,12 +53,6 @@
                                             thúc.
                                         </div>
                                     </div>
-                                    <div class="form-group bg-light col-6">
-                                        <label for="description"><strong>Mô tả</strong></label>
-                                        <textarea class="form-control bg-light" name="description"
-                                                  id="description" placeholder="Nhập mô tả"></textarea>
-                                        <div class="invalid-feedback">Bạn chưa nhập mô tả.</div>
-                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -75,20 +67,18 @@
     </div>
 
     <div class="modal fade" id="modal-delete" tabindex="-1"
-         aria-labelledby="delete-task" aria-hidden="true">
+         aria-labelledby="delete-project" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="delete-task">Xác nhận thao
+                    <h5 class="modal-title" id="delete-project">Xác nhận thao
                         tác</h5>
                     <button type="button" class="close" data-dismiss="modal"
                             aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">Bạn có chắc chắn muốn xóa công việc
-                    này không ?
-                </div>
+                <div class="modal-body">Bạn có chắc chắn muốn xóa dự án này không ?</div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
                     <button type="button" class="btn btn-danger" id="btn-delete">Xóa</button>
@@ -101,7 +91,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-12 text-center">
-                    <h1>Quản lý Công Việc</h1>
+                    <h1>Quản lý Dự án</h1>
                 </div>
                 <div class="col-12">
                     <hr>
@@ -114,9 +104,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-9">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" id="btn-add-task"
-                            data-target="#modal-task">
-                        <i class="fas fa-plus"></i> Thêm công việc
+                    <button type="button" class="btn btn-primary" data-toggle="modal" id="btn-add-project"
+                            data-target="#modal-project">
+                        <i class="fas fa-plus"></i> Thêm dự án
                     </button>
                 </div>
                 <div class="col-md-3">
@@ -142,7 +132,7 @@
                                 <th scope="col">Tên</th>
                                 <th scope="col">Ngày tạo</th>
                                 <th scope="col">Trạng thái</th>
-                                <th scope="col">Nhân viên tham gia</th>
+                                <th scope="col">Công việc</th>
                                 <th scope="col">Hành động</th>
                             </tr>
                             <tr>
@@ -157,7 +147,7 @@
                                     <option>Hoàn thành</option>
                                     <option>Quá hạn</option>
                                 </select></td>
-                                <td scope="row"></td>
+                                <td></td>
                                 <td>
                                     <button type="button" class="btn btn-primary" id="btn-search">
                                         <i class="fas fa-search"></i> Tìm kiếm
@@ -172,10 +162,13 @@
                                 <td>Mark</td>
                                 <td>Mark</td>
                                 <td><span class="badge badge-danger">Quá hạn</span></td>
-                                <td>Mark</td>
+                                <td><a target="_blank" href="#" class="text-decoration-none text-light btn btn-success m-1">
+                                    <i class="fas fa-tasks"></i>
+                                    <span class="text-light"> Xem </span>
+                                </a></td>
                                 <td>
                                     <button type="button" class="btn btn-info"
-                                            data-toggle="modal" data-target="#modal-task">
+                                            data-toggle="modal" data-target="#modal-project">
                                         <i class="far fa-eye"></i>
                                         Chi tiết
                                     </button>
@@ -194,7 +187,7 @@
     </div>
 </main>
 <footer th:replace="~{/fragment/app-fragment :: footer}"></footer>
-<script th:src="@{/js/model/ajax_model_task.js}"></script>
-<script th:src="@{/js/pages/ajax_page_task.js}"></script>
+<script th:src="@{/js/model/ajax_model_project.js}"></script>
+<script th:src="@{/js/pages/ajax_page_project.js}"></script>
 </body>
 </html>

@@ -18,5 +18,4 @@ public class TaskDTO {
 
 	private Task task;
 	private List<TaskToEmployee> taskToEmployees;
-
 }

@@ -7,10 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * The primary key class for the task_to_employee database table.
- * 
- */
 @Embeddable
 @Data
 @AllArgsConstructor

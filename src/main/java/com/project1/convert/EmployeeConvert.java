@@ -11,13 +11,14 @@ import java.util.ListIterator;
 
 @Service
 public class EmployeeConvert implements Convert<Employee, TaskToEmployee, EmployeeDTO>{
+
     @Override
     public List<EmployeeDTO> toDTO(List<Employee> m1, List<TaskToEmployee> m2) throws Exception {
-        List<EmployeeDTO> employeeDTOs = new ArrayList<EmployeeDTO>();
+        List<EmployeeDTO> employeeDTOs = new ArrayList<>();
         ListIterator<TaskToEmployee> listIterator = null;
 
         for (Employee e : m1) {
-            EmployeeDTO employeeDTO = new EmployeeDTO(e, new ArrayList<TaskToEmployee>());
+            EmployeeDTO employeeDTO = new EmployeeDTO(e, new ArrayList<>());
 
             listIterator = m2.listIterator();
             while (listIterator.hasNext()) {

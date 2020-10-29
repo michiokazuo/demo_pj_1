@@ -10,16 +10,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project1.entities.data.Employee;
 
-@Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
-	List<Employee> findAllByDeletedFalse();
+    List<Employee> findAllByDeletedFalse();
 
-	Employee findByIdAndDeletedFalse(Integer id);
+    Employee findByIdAndDeletedFalse(Integer id);
 
-	@Query("update Employee e set e.deleted = true where e.id = ?1")
-	@Modifying
-	@Transactional
-	int deleteCustom(Integer id);
+    Boolean existsByEmailAndPasswordAndDeletedFalse(String email, String password);
+
+    Boolean existsByEmailOrPhoneAndDeletedFalse(String email, String phone);
+
+    @Query("update Employee e set e.deleted = true where e.id = ?1")
+    @Modifying
+    @Transactional
+    int deleteCustom(Integer id);
 
 }

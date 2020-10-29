@@ -16,10 +16,10 @@ function dataFilter(field) {
 
 function showSelectOption(element, list, defaultVal) {
     element.empty();
-    element.append($('<option disabled></option>').val("").text("- " + defaultVal + " -"));
+    element.append($('<option></option>').val("").text("- " + defaultVal + " -"));
     list.forEach(function (e) {
         element.append($('<option></option>').val(e.val).text(e.text));
-    })
+    });
 }
 
 function checkStatus(create, end, complete) {
@@ -35,9 +35,11 @@ function checkStatus(create, end, complete) {
     return rs;
 }
 
-function checkProgress(progress) {
-    return progress ? (progress - 0 === 100 ? `\`<span class="badge badge-success">100%</span>\`` : `<span class="badge badge-primary">${progress}%</span>`)
-        : `<span class="badge badge-secondary">0%</span>`
+function checkProgress(taskTE) {
+    return (taskTE.progress - 0 === 100 || taskTE.task.completeDate) ? `<span class="badge badge-success">100%</span>`
+        : (new Date(taskTE.task.endDate).getTime() - new Date().getTime() > -24 * 60 * 60 * 1000
+            ? `<span class="badge badge-primary">${taskTE.progress}%</span>`
+            : `<span class="badge badge-secondary">${taskTE.progress}%</span>`);
 }
 
 function checkData(selector, regex, textError) {
@@ -81,7 +83,7 @@ function checkPhone(selector, textError) {
 
 function viewError(selector, text) {
     $(selector).addClass("is-invalid");
-    $(selector).siblings(".invalid-feedback").html(text + ". Mời nhập lại!");
+    $(selector).siblings(".invalid-feedback").html(text);
 }
 
 function hiddenError(selector) {

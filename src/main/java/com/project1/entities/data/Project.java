@@ -1,29 +1,25 @@
 package com.project1.entities.data;
 
-import javax.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
-@Table(name = "task")
+@Table(name = "project")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class Task {
+public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Lob
-    @Column(name = "`\r\ndescription`")
-    private String description;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "complete_date")
@@ -41,8 +37,4 @@ public class Task {
     private Date endDate;
 
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
 }

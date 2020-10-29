@@ -35,5 +35,4 @@ public class TaskToEmployee {
 	@MapsId("taskId")
 	@JoinColumn(name = "task_id")
 	private Task task;
-
 }

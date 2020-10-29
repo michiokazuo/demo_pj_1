@@ -9,32 +9,36 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class MainController {
-	@GetMapping(value = { "/", "/trang-chu" })
-	public String home() {
-		return "home";
-	}
+    @GetMapping(value = {"/", "/trang-chu"})
+    public String home() {
+        return "home";
+    }
 
-	@GetMapping("/cong-viec")
-	public String task(Model model, HttpServletRequest req) {
-		model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
-		return "task";
-	}
+    @GetMapping("/du-an")
+    public String project(Model model, HttpServletRequest req) {
+        model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
+        return "project";
+    }
 
-	@GetMapping("/nhan-vien")
-	public String employee(Model model, HttpServletRequest req) {
-		model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
-		return "employee";
-	}
+    @GetMapping("/nhan-vien")
+    public String employee(Model model, HttpServletRequest req) {
+        model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
+        return "employee";
+    }
 
-	@GetMapping("/giao-viec")
-	public String task_to_employee(Model model, HttpServletRequest req) {
-		model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
-		return "task_to_employee";
-	}
+    @GetMapping("/thong-ke")
+    public String statistic(Model model, HttpServletRequest req) {
+        model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
+        return "statistic";
+    }
 
-	@GetMapping("/thong-ke")
-	public String statistic(Model model, HttpServletRequest req) {
-		model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
-		return "statistic";
-	}
+    @GetMapping("/cong-viec-thanh-phan")
+    public String taskOfProject() {
+        return "task_of_project";
+    }
+
+    @GetMapping("/tien-do-ca-nhan")
+    public String employeeProgress() {
+        return "employee_progress";
+    }
 }

@@ -27,8 +27,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final TaskToEmployeeRepository taskToEmployeeRepository;
 
-    private final TaskToEmployeeService taskToEmployeeService;
-
     private final Convert<Employee, TaskToEmployee, EmployeeDTO> convert;
 
     @Override
@@ -64,38 +62,49 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeDTO> search_sort(EmployeeDTO t, String field, Boolean isASC, Byte status) throws Exception {
+    public List<EmployeeDTO> search_sort(EmployeeDTO employeeDTO, String field, Boolean isASC, Byte status)
+            throws Exception {
+        Employee employee = new Employee();
+        if (employeeDTO != null && employeeDTO.getEmployee() != null) {
+            employee = employeeDTO.getEmployee();
+            employee.setDeleted(false);
+        }
+
         List<Employee> employees = (field != null && isASC != null)
                 ? employeeRepository.findAll(
-                Example.of(
-                        (t != null && t.getEmployee() != null) ? t.getEmployee() : new Employee(),
-                        ExampleMatcher.matchingAll()
-                                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
+                Example.of(employee, ExampleMatcher.matchingAll()
+                        .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
                 Sort.by(isASC ? Sort.Direction.ASC : Sort.Direction.DESC, field))
-                : employeeRepository.findAll(Example.of(
-                (t != null && t.getEmployee() != null) ? t.getEmployee() : new Employee(),
-                ExampleMatcher.matchingAll().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
+                : employeeRepository.findAll(Example.of(employee, ExampleMatcher.matchingAll()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
 
-        return convert.toDTO(employees, taskToEmployeeRepository.findAllByDeletedFalse());
+        List<Integer> ids = new ArrayList<>();
+        for (Employee e : employees) {
+            ids.add(e.getId());
+        }
+
+        return convert.toDTO(employees, taskToEmployeeRepository.findByEmployeeIdInAndDeletedFalse(ids));
     }
 
     @Override
-    public EmployeeDTO insert(EmployeeDTO t) throws Exception {
-        if (t == null || t.getEmployee() == null) return null;
-        t.getEmployee().setDeleted(false);
-        return findById(employeeRepository.save(t.getEmployee()).getId());
+    public EmployeeDTO insert(EmployeeDTO employeeDTO) throws Exception {
+        if (employeeDTO == null || employeeDTO.getEmployee() == null
+                || employeeRepository.existsByEmailOrPhoneAndDeletedFalse(employeeDTO.getEmployee().getEmail()
+                , employeeDTO.getEmployee().getPhone())) return null;
+
+        Employee employee = employeeDTO.getEmployee();
+        employee.setDeleted(false);
+        return findById(employeeRepository.save(employee).getId());
     }
 
     @Override
-    public EmployeeDTO update(EmployeeDTO t) throws Exception {
-        if (t != null && t.getEmployee() != null) {
-            t.getEmployee().setDeleted(false);
-            if (t.getTaskToEmployees() != null && t.getTaskToEmployees().size() == 1)
-                return taskToEmployeeService.insert(t.getTaskToEmployees().get(0)) != null
-                        ? findById(employeeRepository.save(t.getEmployee()).getId())
-                        : null;
-
-            return findById(employeeRepository.save(t.getEmployee()).getId());
+    public EmployeeDTO update(EmployeeDTO employeeDTO) throws Exception {
+        if (employeeDTO != null && employeeDTO.getEmployee() != null
+                && !employeeRepository.existsByEmailOrPhoneAndDeletedFalse(employeeDTO.getEmployee().getEmail()
+                , employeeDTO.getEmployee().getPhone())) {
+            Employee employee = employeeDTO.getEmployee();
+            employee.setDeleted(false);
+            return findById(employeeRepository.save(employee).getId());
         }
 
         return null;
@@ -103,8 +112,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public boolean delete(Integer id) throws Exception {
-        return id != null && id > 0 && (employeeRepository.deleteCustom(id) > 0
+        return id != null && id > 0 && (employeeRepository.deleteCustom(id) >= 0
                 && taskToEmployeeRepository.deleteCustomByEmployeeId(id) >= 0);
     }
-
 }

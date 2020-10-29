@@ -1,9 +1,13 @@
 package com.project1.service_impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.project1.convert.Convert;
+import com.project1.dto.EmployeeDTO;
+import com.project1.service.EmployeeService;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -24,58 +28,117 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
 
-	private final TaskService taskService;
+    private final TaskService taskService;
 
-	private final TaskRepository taskRepository;
+    private final EmployeeService employeeService;
 
-	private final EmployeeRepository employeeRepository;
+    private final TaskRepository taskRepository;
 
-	private final TaskToEmployeeRepository taskToEmployeeRepository;
+    private final EmployeeRepository employeeRepository;
 
-	private final Convert<Task, TaskToEmployee, TaskDTO> convert;
+    private final TaskToEmployeeRepository taskToEmployeeRepository;
 
-	@Override
-	public TaskDTO insert(TaskToEmployee t) throws Exception {
-		TaskDTO taskDTO = null;
+    private final Convert<Task, TaskToEmployee, TaskDTO> convert;
 
-		if (t != null) {
-			Task task = taskRepository.findByIdAndDeletedFalse(t.getId().getTaskId());
-			Employee employee = employeeRepository.findByIdAndDeletedFalse(t.getId().getEmployeeId());
+    @Override
+    public TaskDTO insertToTask(TaskToEmployee taskToEmployee) throws Exception {
+        TaskDTO taskDTO = null;
 
-			if (task != null && employee != null) {
-				t.setEmployee(employee);
-				t.setTask(task);
-				t.setProgress(t.getProgress() == null ? 0 : t.getProgress());
+        if (taskToEmployee != null) {
+            Task task = taskRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getTaskId());
+            Employee employee = employeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getEmployeeId());
 
-				TaskToEmployee taskToEmployee = taskToEmployeeRepository.save(t);
+            if (task != null && employee != null) {
+                taskToEmployee.setEmployee(employee);
+                taskToEmployee.setTask(task);
+                taskToEmployee.setProgress(taskToEmployee.getProgress() == null ? 0 : taskToEmployee.getProgress());
 
-				taskDTO = taskService.findById(taskToEmployee.getId().getTaskId());
-			}
-		}
+                if (taskToEmployee.getTask().getCompleteDate() == null) { // task da hpan thanh ko dc sua
+                    TaskToEmployee t = taskToEmployeeRepository.save(taskToEmployee);
+                    taskDTO = taskService.findById(t.getId().getTaskId());
+                }
+            }
+        }
 
-		return taskDTO;
-	}
+        return taskDTO;
+    }
 
-	@Override
-	public boolean delete(TaskToEmployee t) throws Exception {
-		return t != null
-				&& (taskToEmployeeRepository.deleteCustom(t.getId().getTaskId(), t.getId().getEmployeeId()) >= 0);
-	}
+    @Override
+    public EmployeeDTO insertToEmployee(TaskToEmployee taskToEmployee) throws Exception {
+        EmployeeDTO employeeDTO = null;
 
-	@Override
-	public List<TaskDTO> search(String tName, String eName) throws Exception {
-		List<Task> tasks = taskRepository.findAll(Example.of(Task.builder().name(tName).build(),
-				ExampleMatcher.matchingAll().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
-		List<Employee> employees = employeeRepository.findAll(Example.of(Employee.builder().name(eName).build(),
-				ExampleMatcher.matchingAll().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
+        if (taskToEmployee != null) {
+            Task task = taskRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getTaskId());
+            Employee employee = employeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getEmployeeId());
 
-		List<Integer> ids = new ArrayList<>();
+            if (task != null && employee != null) {
+                taskToEmployee.setEmployee(employee);
+                taskToEmployee.setTask(task);
+                taskToEmployee.setProgress(taskToEmployee.getProgress() == null ? 0 : taskToEmployee.getProgress());
 
-		for (Employee e : employees) {
-			ids.add(e.getId());
-		}
+                if (taskToEmployee.getTask().getCompleteDate() == null) { // task da hpan thanh ko dc sua
+                    TaskToEmployee t = taskToEmployeeRepository.save(taskToEmployee);
+                    employeeDTO = employeeService.findById(t.getId().getTaskId());
+                }
+            }
+        }
 
-		return convert.toDTO(tasks, taskToEmployeeRepository.findByEmployeeIdInAndDeletedFalse(ids));
-	}
+        return employeeDTO;
+    }
 
+    @Override
+    public TaskToEmployee insert(TaskToEmployee taskToEmployee) throws Exception {
+        if (taskToEmployee != null) {
+            Task task = taskRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getTaskId());
+            Employee employee = employeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getEmployeeId());
+
+            if (task != null && employee != null) {
+                taskToEmployee.setEmployee(employee);
+                taskToEmployee.setTask(task);
+                taskToEmployee.setProgress(taskToEmployee.getProgress() == null ? 0 : taskToEmployee.getProgress());
+
+                if (taskToEmployee.getTask().getCompleteDate() == null) { // task da hpan thanh ko dc sua
+                    return taskToEmployeeRepository.save(taskToEmployee);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean delete(TaskToEmployee taskToEmployee) throws Exception {
+        return taskToEmployee != null
+                && (taskToEmployeeRepository.deleteCustom(taskToEmployee.getId().getTaskId()
+                , taskToEmployee.getId().getEmployeeId()) >= 0);
+    }
+
+    @Override
+    public List<TaskDTO> search(String tName, String eName) throws Exception {
+        List<Task> tasks = taskRepository.findAll(Example.of(Task.builder().name(tName).build(),
+                ExampleMatcher.matchingAll().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
+        List<Employee> employees = employeeRepository.findAll(Example.of(Employee.builder().name(eName).build(),
+                ExampleMatcher.matchingAll().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)));
+
+        List<Integer> ids = new ArrayList<>();
+
+        for (Employee e : employees) {
+            ids.add(e.getId());
+        }
+
+        return convert.toDTO(tasks, taskToEmployeeRepository.findByEmployeeIdInAndDeletedFalse(ids));
+    }
+
+    @Override
+    public List<TaskToEmployee> search(Byte status, Integer id_employee) throws Exception {
+        long msDay = 24 * 60 * 60 * 1000;
+        List<TaskToEmployee> taskToEmployees = taskToEmployeeRepository.findAll(Example.of(TaskToEmployee.builder()
+                .task(Task.builder().build()).progress(null)
+                .employee(employeeRepository.findByIdAndDeletedFalse(id_employee))
+                .build()));
+
+        return status == null ? taskToEmployees : taskToEmployees.stream().filter(te -> status > 0 ? te.getProgress() == 100 :
+                status < 0 ? te.getProgress() != 100 && te.getTask().getEndDate().getTime() - new Date().getTime() <= -msDay
+                        : te.getProgress() != 100 && te.getTask().getEndDate().getTime() - new Date().getTime() > -msDay)
+                .collect(Collectors.toList());
+    }
 }
