@@ -3,8 +3,6 @@ package com.project1.convert;
 import com.project1.dto.ProjectDTO;
 import com.project1.dto.TaskDTO;
 import com.project1.entities.data.Project;
-import com.project1.entities.data.Task;
-import com.project1.entities.data.TaskToEmployee;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

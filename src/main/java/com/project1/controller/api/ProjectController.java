@@ -19,7 +19,6 @@ public class ProjectController {
 
     @GetMapping("find-all")
     public ResponseEntity<Object> findAll() {
-
         try {
             List<ProjectDTO> projectDTOS = projectService.findAll();
             return projectDTOS != null ? ResponseEntity.ok(projectDTOS) : ResponseEntity.noContent().build();
@@ -31,7 +30,6 @@ public class ProjectController {
 
     @GetMapping("find-by-id/{id}")
     public ResponseEntity<Object> findById(@PathVariable("id") Integer id) {
-
         try {
             ProjectDTO projectDTO = projectService.findById(id);
             return projectDTO != null ? ResponseEntity.ok(projectDTO) : ResponseEntity.noContent().build();
