@@ -16,28 +16,25 @@ public class MainController {
 
     @GetMapping("/du-an")
     public String project(Model model, HttpServletRequest req) {
-        model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
         return "project";
     }
 
     @GetMapping("/nhan-vien")
     public String employee(Model model, HttpServletRequest req) {
-        model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
         return "employee";
     }
 
     @GetMapping("/thong-ke")
     public String statistic(Model model, HttpServletRequest req) {
-        model.addAttribute("pathName", req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE));
         return "statistic";
     }
 
-    @GetMapping("/cong-viec-thanh-phan")
+    @GetMapping("/du-an/cong-viec-thanh-phan")
     public String taskOfProject() {
         return "task_of_project";
     }
 
-    @GetMapping("/tien-do-ca-nhan")
+    @GetMapping("/nhan-vien/tien-do-ca-nhan")
     public String employeeProgress() {
         return "employee_progress";
     }

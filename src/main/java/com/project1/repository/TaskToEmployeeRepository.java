@@ -13,6 +13,8 @@ public interface TaskToEmployeeRepository extends JpaRepository<TaskToEmployee, 
 
 	List<TaskToEmployee> findAllByDeletedFalse();
 
+	TaskToEmployee findByIdAndDeletedFalse(TaskToEmployeePK id);
+
 	List<TaskToEmployee> findByTaskIdAndDeletedFalse(Integer task_id);
 
 	List<TaskToEmployee> findByEmployeeIdAndDeletedFalse(Integer employee_id);

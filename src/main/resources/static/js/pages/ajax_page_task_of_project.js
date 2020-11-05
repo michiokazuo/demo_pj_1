@@ -108,11 +108,13 @@ function viewEmployee() {
 
                     for (let i = 0; i < length; i++) {
                         if (i === 0)
-                            first = `<td>${dataFilter(taskToEmployees[i].task.id + "." + taskToEmployees[i].task.name)}</td>
+                            first = `<td>${dataFilter(taskToEmployees[i].task.name + " - " 
+                                + taskToEmployees[i].task.project.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>`;
                         else
                             tmp += `<tr data-index="${index}" data-index-task="${i}">
-                                <td>${dataFilter(taskToEmployees[i].task.id + "." + taskToEmployees[i].task.name)}</td>
+                                <td>${dataFilter(taskToEmployees[i].task.name + " - " 
+                                + taskToEmployees[i].task.project.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                             </tr>`;
                     }
@@ -140,6 +142,7 @@ function viewEmployee() {
 function showEmployeeToTask() {
     $(".task-to-employee").click(function () {
         indexTask = $(this).parents("tr").attr("data-index");
+        $("#detail-employee").html(`Công việc: ${listTask[indexTask - 0].task.name}. Giao cho nhân viên`);
 
         $("#modal-employee").modal("show");
     })
@@ -165,22 +168,19 @@ function taskToEmployee() {
             .then(function (rs) {
                 if (rs.status === 200) {
                     check = true;
-                    if (!listEmployee[indexEmployee - 0].taskToEmployees)
-                        listEmployee[indexEmployee - 0].taskToEmployees = [];
-                    if (!listTask[indexTask - 0].taskToEmployees)
-                        listTask[indexTask - 0].taskToEmployees = [];
-
-                    listEmployee[indexEmployee - 0].taskToEmployees.push(rs.data);
-                    listTask[indexTask - 0].taskToEmployees.push(rs.data);
                 }
             })
             .catch(function (e) {
                 console.log(e);
             });
 
-        viewTask();
-        alert("Giao việc " + (check ? "thành công." : "thất bại."));
-        viewEmployee();
+        alert("Giao việc " + (check ? "thành công." : "thất bại hoặc nhân viên đó đã nhận công việc này!"));
+        if (check) {
+            await loadEmployee();
+            await loadTask();
+            viewTask();
+            viewEmployee();
+        }
     });
 }
 
@@ -203,7 +203,8 @@ function viewTask() {
                     // start employee 2
                     for (let i = 0; i < length; i++) {
                         if (i === 0)
-                            first = `<td>${dataFilter(taskToEmployees[i].employee.id + "." + taskToEmployees[i].employee.name)}</td>
+                            first = `<td>${dataFilter(taskToEmployees[i].employee.id + "." 
+                                + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                                 <td><button type="button" class="btn btn-danger delete-employee"
                                 ${task.completeDate ? `disabled` : ''}>
@@ -211,7 +212,8 @@ function viewTask() {
                                 </button></td>`;
                         else
                             tmp += `<tr data-index="${index}" data-index-employee="${i}">
-                                <td>${dataFilter(taskToEmployees[i].employee.id + "." + taskToEmployees[i].employee.name)}</td>
+                                <td>${dataFilter(taskToEmployees[i].employee.id + "." 
+                                + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                                 <td><button type="button" class="btn btn-danger delete-employee"
                                     ${task.completeDate ? `disabled` : ''}>
@@ -227,7 +229,7 @@ function viewTask() {
                                 <td rowspan="${length}">${dataFilter(new Date(task.createDate).toLocaleDateString("en-US"))}</td>
                                 <td rowspan="${length}">${checkStatus(task.createDate, task.endDate, task.completeDate)}</td>`
                     + first +
-                    `<td rowspan="${length}">
+                    `<td rowspan="${length}" width="150px">
                                 <button type="button" class="btn btn-warning m-1 task-to-employee"
                                 ${task.completeDate ? `disabled` : ''}>
                                     <i class="fas fa-tasks"></i>

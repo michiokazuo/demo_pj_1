@@ -63,7 +63,7 @@ function viewEmployee() {
                                 <th scope="row">${index + 1}</th>
                                 <td>${dataFilter(employee.name)}</td>
                                 <td>${dataFilter(employee.position)}</td>
-                                <td><a href="/tien-do-ca-nhan?employeeId=${employee.id}" target="_blank"
+                                <td><a href="nhan-vien/tien-do-ca-nhan?employeeId=${employee.id}" target="_blank"
                                 class="text-decoration-none text-light btn btn-success m-1">
                                     <i class="fas fa-tasks"></i>
                                     <span class="text-light"> Xem </span>

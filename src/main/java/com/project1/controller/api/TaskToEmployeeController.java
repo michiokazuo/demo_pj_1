@@ -7,6 +7,8 @@ import com.project1.entities.data.Employee;
 import com.project1.entities.data.Task;
 import com.project1.repository.EmployeeRepository;
 import com.project1.repository.TaskRepository;
+import com.project1.service.EmployeeService;
+import com.project1.service.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +29,10 @@ public class TaskToEmployeeController {
     private final EmployeeRepository employeeRepository;
 
     private final TaskToEmployeeService taskToEmployeeService;
+
+    private final TaskService taskService;
+
+    private final EmployeeService employeeService;
 
     @GetMapping("find-all-task")
     public ResponseEntity<Object> findAllTask() {
@@ -79,7 +85,7 @@ public class TaskToEmployeeController {
     @PostMapping("insert-to-task")
     public ResponseEntity<Object> insertToTask(@RequestBody TaskToEmployee taskToEmployee) {
         try {
-            TaskDTO dto = taskToEmployeeService.insertToTask(taskToEmployee);
+            TaskDTO dto = taskService.findById(taskToEmployeeService.insert(taskToEmployee).getTask().getId());
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,7 +96,7 @@ public class TaskToEmployeeController {
     @PostMapping("insert-to-employee")
     public ResponseEntity<Object> insertToEmployee(@RequestBody TaskToEmployee taskToEmployee) {
         try {
-            EmployeeDTO dto = taskToEmployeeService.insertToEmployee(taskToEmployee);
+            EmployeeDTO dto = employeeService.findById(taskToEmployeeService.insert(taskToEmployee).getEmployee().getId());
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,6 +108,17 @@ public class TaskToEmployeeController {
     public ResponseEntity<Object> insert(@RequestBody TaskToEmployee taskToEmployee) {
         try {
             TaskToEmployee dto = taskToEmployeeService.insert(taskToEmployee);
+            return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("update")
+    public ResponseEntity<Object> update(@RequestBody TaskToEmployee taskToEmployee) {
+        try {
+            TaskToEmployee dto = taskToEmployeeService.update(taskToEmployee);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();

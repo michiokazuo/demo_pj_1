@@ -1,4 +1,4 @@
-let selectSort, tableData, tableTitle, data;
+let selectSort, data;
 
 let listProject = [];
 let listEmployee = [];
@@ -6,11 +6,10 @@ let listSort = [
     {text: "Theo dự án", val: true},
     {text: "Theo nhân viên", val: false}
 ]
+let indexE, employee;
 
 $(async function () {
     selectSort = $("#sort");
-    tableTitle = $("#table-title");
-    tableData = $("#table-data");
     data = $(".table-data .table-responsive");
 
     selectSort.empty();
@@ -32,6 +31,7 @@ async function loadProject() {
         }).catch(function (e) {
             console.log(e);
         });
+    viewProject();
 }
 
 async function loadEmployee() {
@@ -61,12 +61,15 @@ function viewProject() {
         for (let i = 0; i < listProject.length; i++) {
             viewTask(listProject[i], i);
         }
-    else data.html(`<h1 class="text-center"><b>NoData</b></h1>`);
+    else data.html(`<h2 class="text-center"><b>NoData</b></h2>`);
 }
 
 function viewTask(projectDTO, i) {
+    let msDay = 24 * 60 * 60 * 1000;
+    let taskCompletedValid = 0, taskCompletedInvalid = 0, taskInvalid = 0, taskInProgress = 0;
     listTask = projectDTO.taskDTOs;
     let rs = `<tr><td colspan='6'><strong>No Data</strong></td></tr>`;
+
     if (listTask && listTask.length > 0) {
         rs = listTask.map((data, index) => {
             let task = data.task;
@@ -74,6 +77,15 @@ function viewTask(projectDTO, i) {
             let check = false;
 
             if (task) {
+
+                let diff = new Date(task.endDate).getTime() - new Date().getTime();
+                if (task.completeDate) {
+                    diff = new Date(task.endDate).getTime() - new Date(task.completeDate);
+                    (diff > -msDay) ? taskCompletedValid++ : taskCompletedInvalid++;
+                } else {
+                    (diff > -msDay) ? taskInProgress++ : taskInvalid++;
+                }
+
                 let tmp = ``;
                 let first = `<td></td><td></td>`;
                 let length = 1;
@@ -106,7 +118,10 @@ function viewTask(projectDTO, i) {
         }).join("");
     }
 
-    let table = `<h3>${(i + 1) + ". " + projectDTO.project.name}</h3>
+    let table = `<h3 class="mb-3">${(i + 1) + ". " + projectDTO.project.name}</h3>
+                 <figure class="highcharts-figure mb-4">
+                                <div id="content-chart-${i}" class="chart"></div>
+                            </figure>
                 <table class="table table-bordered table-hover bg-white">
                 <thead id="table-title">
                   <tr>
@@ -124,16 +139,59 @@ function viewTask(projectDTO, i) {
               </table>`;
 
     data.append(table);
+
+    Highcharts.chart('content-chart-' + i, {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Biểu đồ đánh giá dự án'
+        },
+
+        xAxis: {
+            categories: [
+                'Hoàn thành',
+                'Đang thực hiện',
+                'Hoàn thành quá hạn',
+                'Quá hạn'
+
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'số lượng công việc'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0,
+                colorByPoint: true
+            }
+        },
+        series: [{
+            name: projectDTO.project.name,
+            data: [{y: taskCompletedValid, color: "rgb(144, 237, 125)"},
+                {y: taskInProgress, color: "rgb(124, 181, 236)"},
+                {y:taskCompletedInvalid, color: "rgb(228, 211, 84)"},
+                {y:taskInvalid, color: "rgb(244, 91, 91)"}]
+        }]
+    });
+
+    $('.highcharts-credits') ? $('.highcharts-credits').remove() : {};
 }
 
 function viewEmployee() {
-    let title = `<tr>
-                    <th scope="col">STT</th>
-                    <th scope="col">Tên nhân viên</th>
-                    <th scope="col">Số công việc tham gia</th>
-                    <th scope="col">Công việc tham gia</th>
-                    <th>Tiến độ</th>
-                  </tr>`;
     let rs = `<tr><td colspan='5'><strong>No Data</strong></td></tr>`;
     if (listEmployee && listEmployee.length > 0) {
         rs = listEmployee.map((data, index) => {
@@ -154,24 +212,123 @@ function viewEmployee() {
                             first = `<td>${dataFilter(taskToEmployees[i].task.project.id + '.' + taskToEmployees[i].task.id + '.' + taskToEmployees[i].task.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>`;
                         else
-                            tmp += `<tr data-index="${index}" data-index-task="${i}">
+                            tmp += `<tr data-index="${index}" data-index-task="${i}" data-toggle="collapse" href="#chart${index}" 
+                                role="button" aria-expanded="false" aria-controls="collapseExample">
                                 <td>${dataFilter(taskToEmployees[i].task.project.id + '.' + taskToEmployees[i].task.id + '.' + taskToEmployees[i].task.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                             </tr>`;
                     }
                 }
 
-                return `<tr data-index="${index}" data-index-task="0">
+                return `<tr data-index="${index}" data-index-task="0" data-toggle="collapse" href="#chart${index}" 
+                                role="button" aria-expanded="false" aria-controls="collapseExample">
                                 <th scope="row" rowspan="${length}">${index + 1}</th>
                                 <td rowspan="${length}">${dataFilter(employee.name)}</td>
                                 <td rowspan="${length}">${check ? length : 0}</td>`
                     + first +
-                    `</tr>` + tmp;
+                    `</tr>` + tmp +
+                    `<tr>
+                        <td colspan="5">
+                      <div class="collapse" id="chart${index}">
+                        <div class="card card-body">
+                          <figure class="highcharts-figure w-100">
+                                <div id="content-chart-${index}" class="chart w-100"></div>
+                            </figure>
+                        </div>
+                      </div>
+                    </td>
+                    </tr>`;
             }
             return ``;
         }).join("");
     }
 
-    tableTitle.html(title);
-    tableData.html(rs);
+    let table = `<table class="table table-bordered table-hover bg-white">
+                <thead id="table-title">
+                 <tr>
+                    <th scope="col">STT</th>
+                    <th scope="col">Tên nhân viên</th>
+                    <th scope="col">Số công việc tham gia</th>
+                    <th scope="col">Công việc tham gia</th>
+                    <th>Tiến độ</th>
+                  </tr>
+                </thead>
+                <tbody id="table-data">`
+        + rs +
+        `</tbody>
+              </table>`;
+
+    data.html(table);
+    showChart();
+}
+
+function showChart() {
+    $('[data-index]').click(function () {
+        let msDay = 24 * 60 * 60 * 1000;
+        indexE = $(this).attr("data-index");
+        employee = listEmployee[indexE - 0];
+        let taskCompletedValid = 0, taskCompletedInvalid = 0, taskInvalid = 0, taskInProgress = 0;
+
+        let listTask = employee.taskToEmployees;
+        for (let te of listTask) {
+            let diff = new Date(te.task.endDate).getTime() - new Date(te.lastModify);
+            if (te.task.completeDate) {
+                (diff > -msDay) ? taskCompletedValid++ : taskCompletedInvalid++;
+            } else {
+                (diff > -msDay) ? taskInProgress++ : taskInvalid++;
+            }
+        }
+
+        Highcharts.chart('content-chart-' + indexE, {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Biểu đồ đánh giá nhân viên'
+            },
+
+            xAxis: {
+                categories: [
+                    'Hoàn thành',
+                    'Đang thực hiện',
+                    'Hoàn thành quá hạn',
+                    'Quá hạn'
+
+                ],
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'số lượng công việc'
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:f}</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0,
+                    colorByPoint: true
+                }
+            },
+            series: [{
+                name: employee.employee.name,
+                data: [{y: taskCompletedValid, color: "rgb(144, 237, 125)"},
+                    {y: taskInProgress, color: "rgb(124, 181, 236)"},
+                    {y:taskCompletedInvalid, color: "rgb(228, 211, 84)"},
+                    {y:taskInvalid, color: "rgb(244, 91, 91)"}]
+            }]
+        });
+
+        $('.highcharts-credits') ? $('.highcharts-credits').remove() : {};
+
+        $('.collapse').collapse("hide");
+    })
 }

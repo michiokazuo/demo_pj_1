@@ -37,11 +37,6 @@
                 src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
                 integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
                 crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"
-                integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css"
-              integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous"/>
         <link rel="stylesheet" th:href="@{/css/style.css}">
     </th:block>
 </head>
@@ -49,7 +44,7 @@
 <menu class="shadow-sm mb-4" th:fragment="menu">
     <nav class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-brand" th:href="@{/trang-chu}"> <img
-                th:src="@{file/home.png}" alt="" style="width: 70px;">
+                th:src="@{/file/home.png}" alt="" style="width: 70px;">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse"
                 data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
@@ -75,8 +70,6 @@
         th:fragment="footer">
     <div id="alert-report"></div>
     <span>@anhnguyen.@phongcosy</span>
-    <input id="pathName" type="text" th:if="${pathName != null}" th:value="${pathName}" class="d-none" readonly
-           disabled>
     <script th:src="@{/js/main.js}"></script>
 </footer>
 </body>

@@ -26,6 +26,10 @@ function taskToEmployeeInsert(t) {
     return ajaxPost(`${URL_TASK_TO_EMPLOYEE}insert`, t);
 }
 
+function taskToEmployeeUpdate(t) {
+    return ajaxPut(`${URL_TASK_TO_EMPLOYEE}update`, t);
+}
+
 function taskToEmployeeDelete(t) {
     return ajaxDelete(`${URL_TASK_TO_EMPLOYEE}delete`, t);
 }

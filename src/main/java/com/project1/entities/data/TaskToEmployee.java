@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "task_to_employee")
@@ -25,6 +28,11 @@ public class TaskToEmployee {
 
 	@Builder.Default
 	private Integer progress = 0;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "last_modify")
+	@LastModifiedDate
+	private Date lastModify;
 
 	@ManyToOne
 	@MapsId("employeeId")

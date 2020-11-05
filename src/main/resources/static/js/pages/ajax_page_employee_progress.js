@@ -56,7 +56,7 @@ function viewTaskOfEmployee() {
             if (data) {
                 return `<tr data-index="${index}">
                                 <th scope="row">${index + 1}</th>
-                                <td>${dataFilter(data.task.name)}</td>
+                                <td>${dataFilter(data.task.name + " - " + data.task.project.name)}</td>
                                 <td>${dataFilter(checkProgress(data))}</td>
                                 <td> 
                                     <button type="button" class="btn btn-warning update-progress" 
@@ -94,7 +94,7 @@ function confirmProgressTask() {
 
             listTaskToEmployee[indexTask - 0].progress = valProgress - 0;
 
-            await taskToEmployeeInsert(listTaskToEmployee[indexTask - 0])
+            await taskToEmployeeUpdate(listTaskToEmployee[indexTask - 0])
                 .then(rs => {
                     if (rs.status === 200) {
                         listTaskToEmployee[indexTask - 0] = rs.data;

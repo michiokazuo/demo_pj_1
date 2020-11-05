@@ -73,7 +73,7 @@ function viewProject() {
                         <td>${dataFilter(new Date(project.createDate).toLocaleDateString("en-US"))}</td>
                         <td>${checkStatus(project.createDate, project.endDate, project.completeDate)}</td>
                         <td>
-                        <a target="_blank" href="cong-viec-thanh-phan?projectId=${project.id}" 
+                        <a target="_blank" href="du-an/cong-viec-thanh-phan?projectId=${project.id}" 
                         class="text-decoration-none text-light btn btn-success m-1">
                                     <i class="fas fa-tasks"></i>
                                     <span class="text-light"> Xem </span>

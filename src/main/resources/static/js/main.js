@@ -1,13 +1,12 @@
 $(function () {
-    let pathName = $("#pathName").val();
-    if (window.location.pathname.indexOf(pathName) >= 0) {
-        $("a[href$='" + pathName + "']").addClass("active");
-    }
+    $("a[href$='/" + window.location.pathname.split('/')[1] + "']").addClass("active");
 
     $(".modal").on("hidden.bs.modal", function () {
         $("form.form-post").trigger("reset");
         $("form.form-post input").removeClass("is-invalid");
     })
+
+    $('.highcharts-credits').remove();
 })
 
 function dataFilter(field) {
@@ -26,10 +25,9 @@ function checkStatus(create, end, complete) {
     let msDay = 24 * 60 * 60 * 1000;
     let rs = `<span class="badge badge-success">Hoàn thành</span>`;
     if (!complete) {
-        let endDate = new Date(end);
-        let date = new Date();
-        let time = endDate.getTime() - date.getTime();
-        rs = (time >= 0 || -time < msDay) ? `<span class="badge badge-primary">Đang thực hiện</span>` : `<span class="badge badge-danger">Quá hạn</span>`;
+        let time = new Date(end).getTime() - new Date().getTime();
+        rs = (time > -msDay) ? `<span class="badge badge-primary">Đang thực hiện</span>`
+            : `<span class="badge badge-danger">Quá hạn</span>`;
     }
 
     return rs;
