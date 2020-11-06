@@ -67,10 +67,13 @@ function viewProject() {
 function viewTask(projectDTO, i) {
     let msDay = 24 * 60 * 60 * 1000;
     let taskCompletedValid = 0, taskCompletedInvalid = 0, taskInvalid = 0, taskInProgress = 0;
+    let num_of_task = 0, taskComplete = 0;
     listTask = projectDTO.taskDTOs;
+
     let rs = `<tr><td colspan='6'><strong>No Data</strong></td></tr>`;
 
     if (listTask && listTask.length > 0) {
+        num_of_task = listTask.length;
         rs = listTask.map((data, index) => {
             let task = data.task;
             let taskToEmployees = data.taskToEmployees;
@@ -80,7 +83,8 @@ function viewTask(projectDTO, i) {
 
                 let diff = new Date(task.endDate).getTime() - new Date().getTime();
                 if (task.completeDate) {
-                    diff = new Date(task.endDate).getTime() - new Date(task.completeDate);
+                    taskComplete++;
+                    diff = new Date(task.endDate).getTime() - new Date(task.completeDate).getTime();
                     (diff > -msDay) ? taskCompletedValid++ : taskCompletedInvalid++;
                 } else {
                     (diff > -msDay) ? taskInProgress++ : taskInvalid++;
@@ -140,12 +144,15 @@ function viewTask(projectDTO, i) {
 
     data.append(table);
 
+    let progress_pj = num_of_task === 0 ? 0 : Math.round(taskComplete * 100 / num_of_task);
+
     Highcharts.chart('content-chart-' + i, {
         chart: {
             type: 'column'
         },
         title: {
-            text: 'Biểu đồ đánh giá dự án'
+            text: ('Tiến độ: ' + progress_pj + "%. "
+                + (projectDTO.project.completeDate ? ('Đánh giá: ' + Math.round(5 * (1 - taskCompletedInvalid / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.') : ''))
         },
 
         xAxis: {
@@ -154,7 +161,6 @@ function viewTask(projectDTO, i) {
                 'Đang thực hiện',
                 'Hoàn thành quá hạn',
                 'Quá hạn'
-
             ],
             crosshair: true
         },
@@ -183,8 +189,8 @@ function viewTask(projectDTO, i) {
             name: projectDTO.project.name,
             data: [{y: taskCompletedValid, color: "rgb(144, 237, 125)"},
                 {y: taskInProgress, color: "rgb(124, 181, 236)"},
-                {y:taskCompletedInvalid, color: "rgb(228, 211, 84)"},
-                {y:taskInvalid, color: "rgb(244, 91, 91)"}]
+                {y: taskCompletedInvalid, color: "rgb(228, 211, 84)"},
+                {y: taskInvalid, color: "rgb(244, 91, 91)"}]
         }]
     });
 
@@ -268,14 +274,18 @@ function showChart() {
         indexE = $(this).attr("data-index");
         employee = listEmployee[indexE - 0];
         let taskCompletedValid = 0, taskCompletedInvalid = 0, taskInvalid = 0, taskInProgress = 0;
-
+        let num_of_task = 0;
         let listTask = employee.taskToEmployees;
-        for (let te of listTask) {
-            let diff = new Date(te.task.endDate).getTime() - new Date(te.lastModify);
-            if (te.task.completeDate) {
-                (diff > -msDay) ? taskCompletedValid++ : taskCompletedInvalid++;
-            } else {
-                (diff > -msDay) ? taskInProgress++ : taskInvalid++;
+        if (listTask && listTask.length > 0) {
+            num_of_task = listTask.length;
+            for (let te of listTask) {
+                let diff = new Date(te.task.endDate).getTime() - new Date(te.lastModify).getTime();
+                if (te.task.completeDate || te.progress === 100) {
+                    (diff > -msDay) ? taskCompletedValid++ : taskCompletedInvalid++;
+                } else {
+                    diff = new Date(te.task.endDate).getTime() - new Date().getTime();
+                    (diff > -msDay) ? taskInProgress++ : taskInvalid++;
+                }
             }
         }
 
@@ -284,7 +294,9 @@ function showChart() {
                 type: 'column'
             },
             title: {
-                text: 'Biểu đồ đánh giá nhân viên'
+                text: ('Đánh giá : ' + ((taskCompletedValid !== 0 || taskCompletedInvalid !== 0)
+                    ? Math.round(5 * (1 - (taskCompletedInvalid + taskInvalid) / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.'
+                    : 'Hiện tại chưa thể đánh giá do chưa hoàn thành công việc nào.'))
             },
 
             xAxis: {
@@ -322,8 +334,8 @@ function showChart() {
                 name: employee.employee.name,
                 data: [{y: taskCompletedValid, color: "rgb(144, 237, 125)"},
                     {y: taskInProgress, color: "rgb(124, 181, 236)"},
-                    {y:taskCompletedInvalid, color: "rgb(228, 211, 84)"},
-                    {y:taskInvalid, color: "rgb(244, 91, 91)"}]
+                    {y: taskCompletedInvalid, color: "rgb(228, 211, 84)"},
+                    {y: taskInvalid, color: "rgb(244, 91, 91)"}]
             }]
         });
 
