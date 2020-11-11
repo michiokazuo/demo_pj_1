@@ -66,8 +66,8 @@ function viewProject() {
 
 function viewTask(projectDTO, i) {
     let msDay = 24 * 60 * 60 * 1000;
-    let taskCompletedValid = 0, taskCompletedInvalid = 0, taskInvalid = 0, taskInProgress = 0;
-    let num_of_task = 0, taskComplete = 0;
+    let taskCompleted = 0, taskValid = 0;
+    let num_of_task = 0;
     listTask = projectDTO.taskDTOs;
 
     let rs = `<tr><td colspan='6'><strong>No Data</strong></td></tr>`;
@@ -80,14 +80,13 @@ function viewTask(projectDTO, i) {
             let check = false;
 
             if (task) {
-
-                let diff = new Date(task.endDate).getTime() - new Date().getTime();
+                let end = new Date(task.endDate);
                 if (task.completeDate) {
-                    taskComplete++;
-                    diff = new Date(task.endDate).getTime() - new Date(task.completeDate).getTime();
-                    (diff > -msDay) ? taskCompletedValid++ : taskCompletedInvalid++;
+                    taskCompleted++;
+                    if (end.getTime() - new Date(task.completeDate).getTime() > -msDay) taskValid++;
                 } else {
-                    (diff > -msDay) ? taskInProgress++ : taskInvalid++;
+                    if (end.getTime() - new Date().getTime() > -msDay)
+                        taskValid++
                 }
 
                 let tmp = ``;
@@ -144,7 +143,7 @@ function viewTask(projectDTO, i) {
 
     data.append(table);
 
-    let progress_pj = num_of_task === 0 ? 0 : Math.round(taskComplete * 100 / num_of_task);
+    let progress_pj = num_of_task === 0 ? 0 : Math.round(taskCompleted * 100 / num_of_task);
 
     Highcharts.chart('content-chart-' + i, {
         chart: {
@@ -152,45 +151,61 @@ function viewTask(projectDTO, i) {
         },
         title: {
             text: ('Tiến độ: ' + progress_pj + "%. "
-                + (projectDTO.project.completeDate ? ('Đánh giá: ' + Math.round(5 * (1 - taskCompletedInvalid / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.') : ''))
+                + (projectDTO.project.completeDate ? ('Đánh giá: ' + Math.round(5 * (taskValid / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.') : ''))
         },
-
         xAxis: {
-            categories: [
-                'Hoàn thành',
-                'Đang thực hiện',
-                'Hoàn thành quá hạn',
-                'Quá hạn'
-            ],
-            crosshair: true
+            categories: [projectDTO.project.name]
         },
         yAxis: {
+            allowDecimals: false,
             min: 0,
             title: {
                 text: 'số lượng công việc'
+            },
+            labels: {
+                overflow: 'justify'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+
             }
         },
         tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b>{point.y:f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
+            pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+            shared: false,
             useHTML: true
         },
         plotOptions: {
             column: {
-                pointPadding: 0.2,
-                borderWidth: 0,
-                colorByPoint: true
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: true
+                }
             }
         },
         series: [{
-            name: projectDTO.project.name,
-            data: [{y: taskCompletedValid, color: "rgb(144, 237, 125)"},
-                {y: taskInProgress, color: "rgb(124, 181, 236)"},
-                {y: taskCompletedInvalid, color: "rgb(228, 211, 84)"},
-                {y: taskInvalid, color: "rgb(244, 91, 91)"}]
+            name: 'Đã hoàn thành',
+            data: [taskCompleted ? taskCompleted : ''],
+            stack: 'Hoàn thành'
+        }, {
+            name: 'Chưa hoàn thành',
+            data: [(num_of_task - taskCompleted) ? (num_of_task - taskCompleted) : ''],
+            stack: 'Hoàn thành'
+        }, {
+            name: 'Chưa quá hạn',
+            data: [taskValid ? taskValid : ''],
+            stack: 'Quá hạn'
+        }, {
+            name: 'Đã quá hạn',
+            data: [(num_of_task - taskValid) ? (num_of_task - taskValid) : ''],
+            stack: 'Quá hạn'
         }]
     });
 
@@ -273,18 +288,19 @@ function showChart() {
         let msDay = 24 * 60 * 60 * 1000;
         indexE = $(this).attr("data-index");
         employee = listEmployee[indexE - 0];
-        let taskCompletedValid = 0, taskCompletedInvalid = 0, taskInvalid = 0, taskInProgress = 0;
+        let taskCompleted = 0, taskValid = 0;
         let num_of_task = 0;
         let listTask = employee.taskToEmployees;
         if (listTask && listTask.length > 0) {
             num_of_task = listTask.length;
             for (let te of listTask) {
-                let diff = new Date(te.task.endDate).getTime() - new Date(te.lastModify).getTime();
+                let end = new Date(te.task.endDate);
                 if (te.task.completeDate || te.progress === 100) {
-                    (diff > -msDay) ? taskCompletedValid++ : taskCompletedInvalid++;
+                    taskCompleted++;
+                    if (end.getTime() - new Date(te.lastModify).getTime() > -msDay) taskValid++;
                 } else {
-                    diff = new Date(te.task.endDate).getTime() - new Date().getTime();
-                    (diff > -msDay) ? taskInProgress++ : taskInvalid++;
+                    if (end.getTime() - new Date().getTime() > -msDay)
+                        taskValid++;
                 }
             }
         }
@@ -294,48 +310,63 @@ function showChart() {
                 type: 'column'
             },
             title: {
-                text: ('Đánh giá : ' + ((taskCompletedValid !== 0 || taskCompletedInvalid !== 0)
-                    ? Math.round(5 * (1 - (taskCompletedInvalid + taskInvalid) / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.'
+                text: ('Đánh giá : ' + ((taskCompleted !== 0)
+                    ? Math.round(5 * (taskValid / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.'
                     : 'Hiện tại chưa thể đánh giá do chưa hoàn thành công việc nào.'))
             },
-
             xAxis: {
-                categories: [
-                    'Hoàn thành',
-                    'Đang thực hiện',
-                    'Hoàn thành quá hạn',
-                    'Quá hạn'
-
-                ],
-                crosshair: true
+                categories: [employee.employee.name]
             },
             yAxis: {
+                allowDecimals: false,
                 min: 0,
                 title: {
                     text: 'số lượng công việc'
+                },
+                labels: {
+                    overflow: 'justify'
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: ( // theme
+                            Highcharts.defaultOptions.title.style &&
+                            Highcharts.defaultOptions.title.style.color
+                        ) || 'gray'
+                    }
+
                 }
             },
             tooltip: {
-                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                    '<td style="padding:0"><b>{point.y:f}</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                shared: false,
                 useHTML: true
             },
             plotOptions: {
                 column: {
-                    pointPadding: 0.2,
-                    borderWidth: 0,
-                    colorByPoint: true
+                    stacking: 'normal',
+                    dataLabels: {
+                        enabled: true
+                    }
                 }
             },
             series: [{
-                name: employee.employee.name,
-                data: [{y: taskCompletedValid, color: "rgb(144, 237, 125)"},
-                    {y: taskInProgress, color: "rgb(124, 181, 236)"},
-                    {y: taskCompletedInvalid, color: "rgb(228, 211, 84)"},
-                    {y: taskInvalid, color: "rgb(244, 91, 91)"}]
+                name: 'Đã hoàn thành',
+                data: [taskCompleted ? taskCompleted : ''],
+                stack: 'Hoàn thành'
+            }, {
+                name: 'Chưa hoàn thành',
+                data: [(num_of_task - taskCompleted) ? (num_of_task - taskCompleted) : ''],
+                stack: 'Hoàn thành'
+            }, {
+                name: 'Chưa quá hạn',
+                data: [taskValid ? taskValid : ''],
+                stack: 'Quá hạn'
+            }, {
+                name: 'Đã quá hạn',
+                data: [(num_of_task - taskValid) ? (num_of_task - taskValid) : ''],
+                stack: 'Quá hạn'
             }]
         });
 

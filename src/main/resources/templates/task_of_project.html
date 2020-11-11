@@ -8,6 +8,58 @@
 <menu th:replace="~{/fragment/app-fragment :: menu}"></menu>
 <main>
     <!-- Modal -->
+    <div class="modal fade" id="modal-update-progress" tabindex="-1"
+         aria-labelledby="detail-task" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detail-progress">Cập nhật lại tiến độ cho nhân viên</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover bg-white">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">STT</th>
+                                            <th scope="col">Nhân viên</th>
+                                            <th>Tiến độ</th>
+                                            <th>Cập nhật</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="table-data-progress">
+                                        <tr>
+                                            <th scope="row">1</th>
+                                            <td>Mark</td>
+                                            <td>Mark</td>
+                                            <td>
+                                                <input class="form-control bg-light " type="number" min="0" max="100"
+                                                        oninput="validity.valid||(value='');" id="progress"/>
+                                                <div class="invalid-feedback">Bạn chưa nhập tiến độ đúng định dạng.
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" id="btn-update">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modal-employee" tabindex="-1"
          aria-labelledby="detail-task" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
@@ -247,10 +299,12 @@
                                 <td>Mark</td>
                                 <td><span class="badge badge-danger">Quá hạn</span></td>
                                 <td>Mark</td>
-                                <td><button type="button" class="btn btn-danger"
+                                <td>
+                                    <button type="button" class="btn btn-danger"
                                             data-toggle="modal" data-target="#modal-delete-employee">
-                                    <i class="far fa-trash-alt"></i> Xóa
-                                </button></td>
+                                        <i class="far fa-trash-alt"></i> Xóa
+                                    </button>
+                                </td>
                                 <td>
                                     <button type="button" class="btn btn-info m-1 task-to-employee"
                                             data-toggle="modal" data-target="#modal-employee">

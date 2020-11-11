@@ -26,14 +26,15 @@
                                     <div class="form-group bg-light col-6">
                                         <label for="progress-task"><strong>Công việc</strong></label> <input
                                             class="form-control bg-light " type="text" name="progress-task"
-                                            id="progress-task"
-                                            readonly disabled>
+                                            id="progress-task" readonly disabled>
                                     </div>
                                     <div class="form-group bg-light col-6">
                                         <label for="progress"><strong>Tiến độ</strong></label> <input
                                             class="form-control bg-light " type="number" min="0" max="100"
                                             oninput="validity.valid||(value='');" name="progress"
-                                            id=progress>
+                                            id="progress">
+                                        <div class="invalid-feedback">Bạn chưa nhập tiến độ đúng định dạng.
+                                        </div>
                                     </div>
                                 </form>
                             </div>

@@ -47,7 +47,6 @@ public class TaskServiceImpl implements TaskService {
             TaskDTO taskDTO = new TaskDTO(task, new ArrayList<>());
 
             for (TaskToEmployee t : taskToEmployees) {
-                t.setTask(null);
                 taskDTO.getTaskToEmployees().add(t);
             }
 

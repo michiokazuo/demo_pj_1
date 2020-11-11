@@ -11,14 +11,6 @@ import com.project1.entities.data.TaskToEmployee;
 
 public interface TaskToEmployeeService {
 
-//	@Modifying
-//	@Transactional(rollbackFor = Exception.class)
-//	TaskDTO insertToTask(TaskToEmployee te) throws Exception;
-//
-//	@Modifying
-//	@Transactional(rollbackFor = Exception.class)
-//	EmployeeDTO insertToEmployee(TaskToEmployee te) throws Exception;
-
 	@Modifying
 	@Transactional(rollbackFor = Exception.class)
 	TaskToEmployee insert(TaskToEmployee te) throws Exception;
@@ -26,6 +18,10 @@ public interface TaskToEmployeeService {
 	@Modifying
 	@Transactional(rollbackFor = Exception.class)
 	TaskToEmployee update(TaskToEmployee te) throws Exception;
+
+	@Modifying
+	@Transactional(rollbackFor = Exception.class)
+	List<TaskToEmployee> updateAll(List<TaskToEmployee> tes) throws Exception;
 
 	@Modifying
 	@Transactional(rollbackFor = Exception.class)

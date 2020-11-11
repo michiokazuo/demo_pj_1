@@ -30,6 +30,10 @@ function taskToEmployeeUpdate(t) {
     return ajaxPut(`${URL_TASK_TO_EMPLOYEE}update`, t);
 }
 
+function taskToEmployeeUpdateAll(t) {
+    return ajaxPut(`${URL_TASK_TO_EMPLOYEE}update-all`, t);
+}
+
 function taskToEmployeeDelete(t) {
     return ajaxDelete(`${URL_TASK_TO_EMPLOYEE}delete`, t);
 }

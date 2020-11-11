@@ -9,7 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity
@@ -31,7 +33,6 @@ public class TaskToEmployee {
 
 	@Temporal(TemporalType.DATE)
 	@Column(name = "last_modify")
-	@LastModifiedDate
 	private Date lastModify;
 
 	@ManyToOne

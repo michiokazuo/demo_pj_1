@@ -49,7 +49,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             EmployeeDTO employeeDTO = new EmployeeDTO(employee, new ArrayList<>());
 
             for (TaskToEmployee t : taskToEmployees) {
-                t.setEmployee(null);
                 employeeDTO.getTaskToEmployees().add(t);
             }
 

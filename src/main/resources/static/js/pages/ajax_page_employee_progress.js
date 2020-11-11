@@ -88,7 +88,7 @@ function confirmProgressTask() {
     btnProgress.click(async () => {
         let {val: valProgress, check: checkProgress} = checkData(numberProgress, /^\d+$/, "Bạn chưa nhập tiến độ");
 
-        if (checkProgress) {
+        if (checkProgress && valProgress - 0 >= 0 && valProgress - 0 <= 100) {
             let mess = "Sửa không thành công";
             let check = false;
 
@@ -110,7 +110,8 @@ function confirmProgressTask() {
             viewTaskOfEmployee();
             $("#modal-employee-progress").modal("hide");
             alertReport(check, mess);
-        }
+        }else
+            viewError(numberProgress, "Bạn chưa nhập tiến độ");
     });
 }
 

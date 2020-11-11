@@ -1,6 +1,11 @@
 package com.project1;
 
+import com.project1.entities.data.TaskToEmployee;
+import com.project1.entities.key.TaskToEmployeePK;
+import com.project1.repository.EmployeeRepository;
+import com.project1.repository.TaskRepository;
 import com.project1.service.ProjectService;
+import com.project1.service.TaskToEmployeeService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

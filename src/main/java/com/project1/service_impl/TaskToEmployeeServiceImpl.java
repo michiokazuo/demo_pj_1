@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.project1.convert.Convert;
-import com.project1.dto.EmployeeDTO;
 import com.project1.service.EmployeeService;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -28,10 +27,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
 
-    private final TaskService taskService;
-
-    private final EmployeeService employeeService;
-
     private final TaskRepository taskRepository;
 
     private final EmployeeRepository employeeRepository;
@@ -39,20 +34,6 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
     private final TaskToEmployeeRepository taskToEmployeeRepository;
 
     private final Convert<Task, TaskToEmployee, TaskDTO> convert;
-
-//    @Override
-//    public TaskDTO insertToTask(TaskToEmployee taskToEmployee) throws Exception {
-//        TaskToEmployee t = insert(taskToEmployee);
-//
-//        return t == null ? null : taskService.findById(t.getTask().getId());
-//    }
-//
-//    @Override
-//    public EmployeeDTO insertToEmployee(TaskToEmployee taskToEmployee) throws Exception {
-//        TaskToEmployee t = insert(taskToEmployee);
-//
-//        return t == null ? null : employeeService.findById(t.getEmployee().getId());
-//    }
 
     @Override
     public TaskToEmployee insert(TaskToEmployee taskToEmployee) throws Exception {
@@ -66,17 +47,10 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
                 taskToEmployee.setEmployee(employee);
                 taskToEmployee.setTask(task);
                 taskToEmployee.setProgress(0);
+                taskToEmployee.setLastModify(new Date());
 
                 if (taskToEmployee.getTask().getCompleteDate() == null) { // task da hoan thanh ko dc sua
                     rs = taskToEmployeeRepository.save(taskToEmployee);
-//                    List<TaskToEmployee> taskToEmployees = taskToEmployeeRepository
-//                            .findByTaskIdAndDeletedFalse(rs.getTask().getId());
-//                    int percent_person = 100 / taskToEmployees.size();
-//                    for (TaskToEmployee te: taskToEmployees) {
-//                        if (te.getProgress() >= percent_person) te.setProgress(100);
-//                    }
-//
-//                    taskToEmployeeRepository.saveAll(taskToEmployees);
                 }
             }
         }
@@ -92,7 +66,11 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
             if (task != null && employee != null) {
                 taskToEmployee.setEmployee(employee);
                 taskToEmployee.setTask(task);
-                taskToEmployee.setProgress(taskToEmployee.getProgress() == null ? 0 : taskToEmployee.getProgress());
+                Integer progress = taskToEmployee.getProgress();
+                taskToEmployee.setProgress((progress == null || progress < 0 || progress > 100)
+                        ? taskToEmployeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId()).getProgress()
+                        : taskToEmployee.getProgress());
+                taskToEmployee.setLastModify(new Date());
 
                 if (taskToEmployee.getTask().getCompleteDate() == null) { // task da hoan thanh ko dc sua
                     return taskToEmployeeRepository.save(taskToEmployee);
@@ -103,7 +81,38 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
     }
 
     @Override
+    public List<TaskToEmployee> updateAll(List<TaskToEmployee> taskToEmployees) throws Exception {
+        boolean check = true;
+        if (taskToEmployees != null) {
+            for (TaskToEmployee taskToEmployee : taskToEmployees)
+                if (taskToEmployee != null) {
+                    Task task = taskRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getTaskId());
+                    Employee employee = employeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getEmployeeId());
+
+                    if (task != null && employee != null) {
+                        taskToEmployee.setEmployee(employee);
+                        Integer progress = taskToEmployee.getProgress();
+                        taskToEmployee.setProgress((progress == null || progress < 0 || progress > 100)
+                                ? taskToEmployeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId()).getProgress()
+                                : taskToEmployee.getProgress());
+                        taskToEmployee.setLastModify(new Date());
+
+                        if (taskToEmployee.getTask().getCompleteDate() != null) { // task da hoan thanh ko dc sua
+                            check = false;
+                            break;
+                        }
+                    }
+                }
+            if (check) return taskToEmployeeRepository.saveAll(taskToEmployees);
+        }
+        return null;
+    }
+
+    @Override
     public boolean delete(TaskToEmployee taskToEmployee) throws Exception {
+        if (taskToEmployee != null
+                && taskToEmployeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId()).getProgress() != 0)
+            return false;
         return taskToEmployee != null
                 && (taskToEmployeeRepository.deleteCustom(taskToEmployee.getId().getTaskId()
                 , taskToEmployee.getId().getEmployeeId()) >= 0);

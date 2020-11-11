@@ -115,6 +115,17 @@ public class TaskToEmployeeController {
         }
     }
 
+    @PutMapping("update-all")
+    public ResponseEntity<Object> updateAll(@RequestBody List<TaskToEmployee> taskToEmployees) {
+        try {
+            List<TaskToEmployee> dtos = taskToEmployeeService.updateAll(taskToEmployees);
+            return dtos != null ? ResponseEntity.ok(dtos) : ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PutMapping("update")
     public ResponseEntity<Object> update(@RequestBody TaskToEmployee taskToEmployee) {
         try {

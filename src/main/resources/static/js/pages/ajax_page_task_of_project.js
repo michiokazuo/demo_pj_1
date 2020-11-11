@@ -1,6 +1,6 @@
 let textName, dateComplete, dateCreate, dateEnd, textareaDescription, btnConfirmSave, btnConfirmDelete, btnAddTask
     , selectSort, textSearchName, dateSearchCreate, selectSearchStatus, btnSearch, tableData, tableDataEmployee, btnAdd,
-    btnDeleteEmployee;
+    btnDeleteEmployee, tableDataProgress, btnUpdateProgress;
 
 let listTask = [];
 let listEmployee = [];
@@ -36,6 +36,8 @@ $(async function () {
     tableDataEmployee = $("#table-data-employee");
     btnAdd = $(".btn-add");
     btnDeleteEmployee = $("#btn-delete-employee");
+    tableDataProgress = $("#table-data-progress");
+    btnUpdateProgress = $("#btn-update")
 
     let url = new URL(window.location.href);
     idProject = url.searchParams.get("projectId");
@@ -108,12 +110,12 @@ function viewEmployee() {
 
                     for (let i = 0; i < length; i++) {
                         if (i === 0)
-                            first = `<td>${dataFilter(taskToEmployees[i].task.name + " - " 
+                            first = `<td>${dataFilter(taskToEmployees[i].task.name + " - "
                                 + taskToEmployees[i].task.project.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>`;
                         else
                             tmp += `<tr data-index="${index}" data-index-task="${i}">
-                                <td>${dataFilter(taskToEmployees[i].task.name + " - " 
+                                <td>${dataFilter(taskToEmployees[i].task.name + " - "
                                 + taskToEmployees[i].task.project.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                             </tr>`;
@@ -164,10 +166,11 @@ function taskToEmployee() {
         taskToE.id.employeeId = taskToE.employee.id;
         taskToE.id.taskId = taskToE.task.id;
 
-        await taskToEmployeeInsert(taskToE)
+        await taskToEmployeeInsertToTask(taskToE)
             .then(function (rs) {
                 if (rs.status === 200) {
                     check = true;
+                    listTask[indexTask - 0] = rs.data;
                 }
             })
             .catch(function (e) {
@@ -177,11 +180,84 @@ function taskToEmployee() {
         alert("Giao việc " + (check ? "thành công." : "thất bại hoặc nhân viên đó đã nhận công việc này!"));
         if (check) {
             await loadEmployee();
-            await loadTask();
-            viewTask();
-            viewEmployee();
+            $("#modal-employee").modal("hide");
+            viewDataProgress();
         }
     });
+}
+
+function showDataProgress() {
+    $("#detail-progress").html(`Cập nhật lại tiến độ cho nhân viên tham gia công việc: ${listTask[indexTask - 0].task.name}`);
+
+    $("#modal-update-progress").modal("show");
+}
+
+function viewDataProgress() {
+    let rs = `<tr><td colspan='4'><strong>No Data</strong></td></tr>`;
+    let listTE = listTask[indexTask - 0].taskToEmployees;
+    if (listTE && listTE.length > 0) {
+        rs = listTE.map((data, index) => {
+            if (data) {
+                return `<tr data-index="${index}">
+                        <th scope="row">${index + 1}</th>
+                        <td>${dataFilter(data.employee.id + '. ' + data.employee.name)}</td>
+                        <td>${dataFilter(checkProgress(data))}</td>
+                        <td>
+                             <input class="form-control bg-light " type="number" min="0" max="100"
+                                  oninput="validity.valid||(value='');" id="progress${index}" 
+                                  value="${data.progress}"/>
+                             <div class="invalid-feedback">Bạn chưa nhập tiến độ đúng định dạng.
+                             </div>
+                        </td>
+                        </tr>`;
+            }
+            return ``;
+        }).join("");
+    }
+    tableDataProgress.html(rs);
+    showDataProgress();
+    updateProgress(listTE);
+}
+
+function updateProgress(listTE) {
+    btnUpdateProgress.click(async function () {
+        let check = true;
+        if (listTE && listTE.length > 0)
+            for (let i = 0; i < listTE.length; i++) {
+                let {val: valProgress, check: checkProgress} = checkData($(`#progress${i}`), /^\d+$/, "Bạn chưa nhập tiến độ");
+                if (checkProgress && valProgress - 0 >= 0 && valProgress - 0 <= 100) {
+                    listTE[i].progress = valProgress - 0;
+                } else {
+                    viewError($(`#progress${i}`), "Bạn chưa nhập tiến độ");
+                    check = false;
+                }
+            }
+
+        if (check) {
+            let mess = "Cập nhật không thành công thành công";
+            check = false;
+            await taskToEmployeeUpdateAll(listTE)
+                .then(function (rs) {
+                    if (rs.status === 200) {
+                        listTask[indexTask - 0].taskToEmployees = rs.data;
+                        check = true;
+                        mess = "Cập nhật thành công";
+                    }
+                })
+                .catch(function (e) {
+                    console.log(e);
+                });
+            alertReport(check, mess);
+            alert("Cập nhật " + (check ? "thành công." : "thất bại!"));
+            if (check) {
+                await loadEmployee();
+                $("#modal-update-progress").modal("hide");
+                viewEmployee();
+                $("#modal-employee").modal("show");
+                viewTask();
+            }
+        }
+    })
 }
 
 function viewTask() {
@@ -203,20 +279,20 @@ function viewTask() {
                     // start employee 2
                     for (let i = 0; i < length; i++) {
                         if (i === 0)
-                            first = `<td>${dataFilter(taskToEmployees[i].employee.id + "." 
+                            first = `<td>${dataFilter(taskToEmployees[i].employee.id + "."
                                 + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                                 <td><button type="button" class="btn btn-danger delete-employee"
-                                ${task.completeDate ? `disabled` : ''}>
+                                ${taskToEmployees[i].progress !== 0 ? `disabled` : ''}>
                                     <i class="far fa-trash-alt"></i> Xóa
                                 </button></td>`;
                         else
                             tmp += `<tr data-index="${index}" data-index-employee="${i}">
-                                <td>${dataFilter(taskToEmployees[i].employee.id + "." 
+                                <td>${dataFilter(taskToEmployees[i].employee.id + "."
                                 + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                                 <td><button type="button" class="btn btn-danger delete-employee"
-                                    ${task.completeDate ? `disabled` : ''}>
+                                    ${taskToEmployees[i].progress !== 0 ? `disabled` : ''}>
                                     <i class="far fa-trash-alt"></i> Xóa
                                 </button></td>
                             </tr>`;
