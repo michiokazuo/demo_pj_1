@@ -7,6 +7,7 @@ import com.project1.entities.data.Employee;
 import com.project1.entities.data.Task;
 import com.project1.repository.EmployeeRepository;
 import com.project1.repository.TaskRepository;
+import com.project1.repository.TaskToEmployeeRepository;
 import com.project1.service.EmployeeService;
 import com.project1.service.TaskService;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,8 @@ public class TaskToEmployeeController {
     private final EmployeeRepository employeeRepository;
 
     private final TaskToEmployeeService taskToEmployeeService;
+
+    private final TaskToEmployeeRepository taskToEmployeeRepository;
 
     private final TaskService taskService;
 
@@ -142,6 +145,19 @@ public class TaskToEmployeeController {
         try {
             if (taskToEmployeeService.delete(taskToEmployee)) {
                 return ResponseEntity.ok("Delete Successful");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
+
+    @DeleteMapping("pause")
+    public ResponseEntity<Object> pause(@RequestBody TaskToEmployee taskToEmployee) {
+        try {
+            if (taskToEmployeeService.pause(taskToEmployee)) {
+                return ResponseEntity.ok(taskToEmployeeRepository.findByIdAndDeletedFalseAndPausedTrue(taskToEmployee.getId()));
             }
         } catch (Exception e) {
             e.printStackTrace();

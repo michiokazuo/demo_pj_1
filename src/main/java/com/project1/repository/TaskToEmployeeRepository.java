@@ -15,6 +15,10 @@ public interface TaskToEmployeeRepository extends JpaRepository<TaskToEmployee, 
 
 	TaskToEmployee findByIdAndDeletedFalse(TaskToEmployeePK id);
 
+	TaskToEmployee findByIdAndDeletedFalseAndPausedFalse(TaskToEmployeePK id);
+
+	TaskToEmployee findByIdAndDeletedFalseAndPausedTrue(TaskToEmployeePK id);
+
 	List<TaskToEmployee> findByTaskIdAndDeletedFalse(Integer task_id);
 
 	List<TaskToEmployee> findByEmployeeIdAndDeletedFalse(Integer employee_id);
@@ -42,5 +46,10 @@ public interface TaskToEmployeeRepository extends JpaRepository<TaskToEmployee, 
 	@Modifying
 	@Transactional
 	int deleteCustom(Integer taskId, Integer employeeId);
+
+	@Query("update TaskToEmployee t set t.paused = true, t.progress = 100, t.lastModify = current_date where t.id.taskId = ?1 and t.id.employeeId = ?2")
+	@Modifying
+	@Transactional
+	int pauseCustom(Integer taskId, Integer employeeId);
 
 }

@@ -1,6 +1,6 @@
 let textName, dateComplete, dateCreate, dateEnd, textareaDescription, btnConfirmSave, btnConfirmDelete, btnAddTask
     , selectSort, textSearchName, dateSearchCreate, selectSearchStatus, btnSearch, tableData, tableDataEmployee, btnAdd,
-    btnDeleteEmployee, tableDataProgress, btnUpdateProgress;
+    btnDeleteEmployee, tableDataProgress, btnUpdateProgress, btnPauseEmployee;
 
 let listTask = [];
 let listEmployee = [];
@@ -16,7 +16,7 @@ let listSort = [
     {text: "Tạo gần đây", val: "", field: "createDate", isASC: "false"}
 ]
 let indexTask, taskDTO, task, indexEmployee;
-let checkAction, idProject, checkComplete;
+let checkAction, idProject, checkComplete, checkInsert;
 
 $(async function () {
     textName = $("#name");
@@ -37,7 +37,8 @@ $(async function () {
     btnAdd = $(".btn-add");
     btnDeleteEmployee = $("#btn-delete-employee");
     tableDataProgress = $("#table-data-progress");
-    btnUpdateProgress = $("#btn-update")
+    btnUpdateProgress = $("#btn-update");
+    btnPauseEmployee = $("#btn-pause-employee");
 
     let url = new URL(window.location.href);
     idProject = url.searchParams.get("projectId");
@@ -57,8 +58,10 @@ $(async function () {
     confirmDeleteTask();
     confirmSaveTask();
     confirmDeleteEmployee();
+    confirmPauseEmployee();
     sortTask();
     searchTask();
+    updateProgress();
 
     $("#modal-employee").on("hidden.bs.modal", function () {
         alertReport(true, 'Giao việc thành công');
@@ -111,12 +114,12 @@ function viewEmployee() {
                     for (let i = 0; i < length; i++) {
                         if (i === 0)
                             first = `<td>${dataFilter(taskToEmployees[i].task.name + " - "
-                                + taskToEmployees[i].task.project.name)}</td>
+                                + taskToEmployees[i].task.project.name) + `(${taskToEmployees[i].paused ? 'Tạm dừng công việc' : ''})`}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>`;
                         else
                             tmp += `<tr data-index="${index}" data-index-task="${i}">
                                 <td>${dataFilter(taskToEmployees[i].task.name + " - "
-                                + taskToEmployees[i].task.project.name)}</td>
+                                + taskToEmployees[i].task.project.name) + `(${taskToEmployees[i].paused ? 'Tạm dừng công việc' : ''})`}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                             </tr>`;
                     }
@@ -154,10 +157,12 @@ function taskToEmployee() {
     $(".btn-add").click(async function () {
         indexEmployee = $(this).parents("tr").attr("data-index");
         let check = false;
+        checkInsert = true;
 
         let taskToE = {};
         taskToE.id = {};
         taskToE.deleted = false;
+        taskToE.paused = false;
         taskToE.progress = 0;
         taskToE.employee = {};
         taskToE.task = {};
@@ -166,11 +171,12 @@ function taskToEmployee() {
         taskToE.id.employeeId = taskToE.employee.id;
         taskToE.id.taskId = taskToE.task.id;
 
-        await taskToEmployeeInsertToTask(taskToE)
+        await taskToEmployeeInsert(taskToE)
             .then(function (rs) {
                 if (rs.status === 200) {
                     check = true;
-                    listTask[indexTask - 0] = rs.data;
+                    if(!listTask[indexTask - 0].taskToEmployees) listTask[indexTask - 0].taskToEmployees = [];
+                    listTask[indexTask - 0].taskToEmployees.push(rs.data);
                 }
             })
             .catch(function (e) {
@@ -200,12 +206,12 @@ function viewDataProgress() {
             if (data) {
                 return `<tr data-index="${index}">
                         <th scope="row">${index + 1}</th>
-                        <td>${dataFilter(data.employee.id + '. ' + data.employee.name)}</td>
+                        <td>${dataFilter(data.employee.id + '. ' + data.employee.name + `${data.paused ? ' (Tạm dừng công việc)' : ((index + 1 === listTE.length && checkInsert) ? ' (Mới thêm)' : '')}`)}</td>
                         <td>${dataFilter(checkProgress(data))}</td>
                         <td>
                              <input class="form-control bg-light " type="number" min="0" max="100"
                                   oninput="validity.valid||(value='');" id="progress${index}" 
-                                  value="${data.progress}"/>
+                                  value="${data.progress}" ${(data.paused || (index + 1 === listTE.length && checkInsert))  ? `disabled` : ''}/>
                              <div class="invalid-feedback">Bạn chưa nhập tiến độ đúng định dạng.
                              </div>
                         </td>
@@ -216,11 +222,11 @@ function viewDataProgress() {
     }
     tableDataProgress.html(rs);
     showDataProgress();
-    updateProgress(listTE);
 }
 
-function updateProgress(listTE) {
+function updateProgress() {
     btnUpdateProgress.click(async function () {
+        let listTE = listTask[indexTask - 0].taskToEmployees;
         let check = true;
         if (listTE && listTE.length > 0)
             for (let i = 0; i < listTE.length; i++) {
@@ -253,7 +259,7 @@ function updateProgress(listTE) {
                 await loadEmployee();
                 $("#modal-update-progress").modal("hide");
                 viewEmployee();
-                $("#modal-employee").modal("show");
+                if(checkInsert) $("#modal-employee").modal("show");
                 viewTask();
             }
         }
@@ -282,19 +288,23 @@ function viewTask() {
                             first = `<td>${dataFilter(taskToEmployees[i].employee.id + "."
                                 + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
-                                <td><button type="button" class="btn btn-danger delete-employee"
-                                ${taskToEmployees[i].progress !== 0 ? `disabled` : ''}>
-                                    <i class="far fa-trash-alt"></i> Xóa
-                                </button></td>`;
+                                <td><button type="button" class="btn btn-danger ${taskToEmployees[i].progress !== 0 ? 'pause-employee' : 'delete-employee'}"
+                                ${(taskToEmployees[i].paused || taskToEmployees[i].task.completeDate)  ? `disabled` : ''}>`
+                                   + `${taskToEmployees[i].paused ? 'Đã tạm dừng' 
+                                    : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng` 
+                                        : `<i class="far fa-trash-alt"></i> Xóa`)}` +
+                                `</button></td>`;
                         else
                             tmp += `<tr data-index="${index}" data-index-employee="${i}">
                                 <td>${dataFilter(taskToEmployees[i].employee.id + "."
                                 + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
-                                <td><button type="button" class="btn btn-danger delete-employee"
-                                    ${taskToEmployees[i].progress !== 0 ? `disabled` : ''}>
-                                    <i class="far fa-trash-alt"></i> Xóa
-                                </button></td>
+                                <td><button type="button" class="btn btn-danger ${taskToEmployees[i].progress !== 0 ? 'pause-employee' : 'delete-employee'}"
+                                ${(taskToEmployees[i].paused || taskToEmployees[i].task.completeDate) ? `disabled` : ''}>`
+                                + `${taskToEmployees[i].paused ? 'Đã tạm dừng'
+                                    : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng`
+                                        : `<i class="far fa-trash-alt"></i> Xóa`)}` +
+                                `</button></td>
                             </tr>`;
                     }
                 }
@@ -349,6 +359,7 @@ function viewTask() {
     updateTask();
     deleteTask();
     deleteEmployee();
+    pauseEmployee();
     showEmployeeToTask();
 }
 
@@ -475,6 +486,7 @@ function deleteTask() {
         indexTask = $(this).parents("tr").attr("data-index");
         taskDTO = listTask[indexTask - 0];
         task = taskDTO.task;
+        $("#delete-task").html(`Xác nhận thao tác với công việc: ${task.name}`);
 
         $("#modal-delete").modal("show");
     });
@@ -514,6 +526,7 @@ function deleteEmployee() {
         indexEmployee = $(this).parents("tr").attr("data-index-employee");
         taskDTO = listTask[indexTask - 0];
         task = taskDTO.task;
+        $("#delete-employee").html(`Xác nhận thao tác với nhân viên: ${taskDTO.taskToEmployees[indexEmployee - 0].employee.name} ` + `- công việc: ${task.name}`);
 
         $("#modal-delete-employee").modal("show");
     })
@@ -544,6 +557,44 @@ function confirmDeleteEmployee() {
         await loadEmployee();
         viewEmployee();
         alertReport(check, mess);
+    })
+}
+
+function pauseEmployee() {
+    $(".pause-employee").click(function () {
+        indexTask = $(this).parents("tr").attr("data-index");
+        indexEmployee = $(this).parents("tr").attr("data-index-employee");
+        taskDTO = listTask[indexTask - 0];
+        task = taskDTO.task;
+        checkInsert = false;
+        $("#pause-employee").html(`Xác nhận thao tác với nhân viên: ${taskDTO.taskToEmployees[indexEmployee - 0].employee.name} ` + `- công việc: ${task.name}`);
+
+        $("#modal-pause-employee").modal("show");
+    })
+}
+
+function confirmPauseEmployee() {
+    btnPauseEmployee.click(async function () {
+        let mess = "Dừng công việc không thành công!!!";
+        let check = false;
+
+        await taskToEmployeePause(taskDTO.taskToEmployees[indexEmployee - 0])
+            .then(function (rs) {
+                if (rs.status === 200) {
+                    listTask[indexTask - 0].taskToEmployees[indexEmployee - 0] = rs.data;
+                    mess = "Dừng công việc thành công.";
+                    check = true;
+                }
+            })
+            .catch(function (e) {
+                console.log(e);
+            });
+
+        $("#modal-pause-employee").modal("hide");
+        alertReport(check, mess);
+        if(check){
+            viewDataProgress();
+        }
     })
 }
 
@@ -600,9 +651,10 @@ function checkSave(task) {
         && new Date(projectDTO.project.createDate).getTime() - createDate.getTime() <= 0
         && new Date(projectDTO.project.endDate).getTime() - endDate.getTime() >= 0
         && !projectDTO.project.completeDate) // du an da hoan thanh ko cho chinh sua
-        if (!(complete && complete.length > 0)) {
+        if (!complete) {
             check = true;
         } else {
+            console.log("complete")
             let completeDate = new Date(complete);
             let complete_create = completeDate.getTime() - createDate.getTime();
             // let end_complete = endDate.getTime() - completeDate.getTime();
@@ -611,6 +663,7 @@ function checkSave(task) {
             if (complete_create >= 0) {
                 check = true;
             }
+
 
             if (check) {
                 if (!taskDTO.taskToEmployees) {

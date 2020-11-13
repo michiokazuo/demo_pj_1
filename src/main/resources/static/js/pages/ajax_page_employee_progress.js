@@ -60,7 +60,7 @@ function viewTaskOfEmployee() {
                                 <td>${dataFilter(checkProgress(data))}</td>
                                 <td> 
                                     <button type="button" class="btn btn-warning update-progress" 
-                                    ${data.task.completeDate ? `disabled` : ''}>
+                                    ${data.task.completeDate || data.paused ? `disabled` : ''}>
                                         <i class="fas fa-edit"></i> Cập nhật
                                     </button>
                                 </td>

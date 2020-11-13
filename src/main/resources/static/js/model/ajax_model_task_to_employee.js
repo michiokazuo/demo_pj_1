@@ -38,6 +38,10 @@ function taskToEmployeeDelete(t) {
     return ajaxDelete(`${URL_TASK_TO_EMPLOYEE}delete`, t);
 }
 
+function taskToEmployeePause(t) {
+    return ajaxDelete(`${URL_TASK_TO_EMPLOYEE}pause`, t);
+}
+
 function taskToEmployeeSearch(q) {
     return ajaxGet(`${URL_TASK_TO_EMPLOYEE}search?` + `${q}`);
 }

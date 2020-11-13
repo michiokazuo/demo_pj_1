@@ -39,7 +39,8 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
     public TaskToEmployee insert(TaskToEmployee taskToEmployee) throws Exception {
         TaskToEmployee rs = null;
         if (taskToEmployee != null) {
-            if (taskToEmployeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId()) != null) return null;
+            if (taskToEmployeeRepository.findByIdAndDeletedFalseAndPausedFalse(taskToEmployee.getId()) != null)
+                return null;
             Task task = taskRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getTaskId());
             Employee employee = employeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getEmployeeId());
 
@@ -60,6 +61,9 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
     @Override
     public TaskToEmployee update(TaskToEmployee taskToEmployee) throws Exception {
         if (taskToEmployee != null) {
+            if (taskToEmployee.getPaused()
+                    || taskToEmployeeRepository.findByIdAndDeletedFalseAndPausedTrue(taskToEmployee.getId()) != null)
+                return null;
             Task task = taskRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getTaskId());
             Employee employee = employeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getEmployeeId());
 
@@ -86,6 +90,9 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
         if (taskToEmployees != null) {
             for (TaskToEmployee taskToEmployee : taskToEmployees)
                 if (taskToEmployee != null) {
+                    if (taskToEmployee.getPaused()
+                            || taskToEmployeeRepository.findByIdAndDeletedFalseAndPausedTrue(taskToEmployee.getId()) != null)
+                        continue;
                     Task task = taskRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getTaskId());
                     Employee employee = employeeRepository.findByIdAndDeletedFalse(taskToEmployee.getId().getEmployeeId());
 
@@ -115,6 +122,13 @@ public class TaskToEmployeeServiceImpl implements TaskToEmployeeService {
             return false;
         return taskToEmployee != null
                 && (taskToEmployeeRepository.deleteCustom(taskToEmployee.getId().getTaskId()
+                , taskToEmployee.getId().getEmployeeId()) >= 0);
+    }
+
+    @Override
+    public boolean pause(TaskToEmployee taskToEmployee) throws Exception {
+        return taskToEmployee != null
+                && (taskToEmployeeRepository.pauseCustom(taskToEmployee.getId().getTaskId()
                 , taskToEmployee.getId().getEmployeeId()) >= 0);
     }
 

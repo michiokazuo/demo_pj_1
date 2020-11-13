@@ -27,6 +27,10 @@ public interface TaskToEmployeeService {
 	@Transactional(rollbackFor = Exception.class)
 	boolean delete(TaskToEmployee te) throws Exception;
 
+	@Modifying
+	@Transactional(rollbackFor = Exception.class)
+	boolean pause(TaskToEmployee te) throws Exception;
+
 	List<TaskDTO> search(String taskName, String employeeName) throws Exception;
 
 	List<TaskToEmployee> search(Byte status, Integer id_employee) throws Exception;

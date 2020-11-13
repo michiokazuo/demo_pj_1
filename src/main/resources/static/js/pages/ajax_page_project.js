@@ -302,7 +302,7 @@ function checkSave(project) {
     let complete = project.project.completeDate;
 
     if (endDate.getTime() - createDate.getTime() >= 0)
-        if (!(complete && complete.length > 0)) {
+        if (!complete) {
             check = true;
         } else {
             let completeDate = new Date(complete);

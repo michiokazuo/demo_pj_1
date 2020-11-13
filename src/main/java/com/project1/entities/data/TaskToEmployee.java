@@ -29,6 +29,9 @@ public class TaskToEmployee {
 	private Boolean deleted = false;
 
 	@Builder.Default
+	private Boolean paused = false;
+
+	@Builder.Default
 	private Integer progress = 0;
 
 	@Temporal(TemporalType.DATE)
