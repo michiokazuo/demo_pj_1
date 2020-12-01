@@ -1,13 +1,15 @@
 const URL_PUBLIC = "/public";
 const URL_TASK_TO_EMPLOYEE = URL_PUBLIC + "/task-to-employee/";
-const URL_TASK_E = URL_PUBLIC + "/task/";
+const URL_TASK_E = URL_PUBLIC + "/task/admin/";
+const URL_ADMIN_TE = URL_TASK_TO_EMPLOYEE + "admin/";
+const URL_USER_TE = URL_TASK_TO_EMPLOYEE + "user/";
 
 function findAllTask() {
-    return ajaxGet(`${URL_TASK_TO_EMPLOYEE}find-all-task`);
+    return ajaxGet(`${URL_ADMIN_TE}find-all-task`);
 }
 
 function findAllEmployee() {
-    return ajaxGet(`${URL_TASK_TO_EMPLOYEE}find-all-employee`);
+    return ajaxGet(`${URL_ADMIN_TE}find-all-employee`);
 }
 
 function taskToEmployeeFindAll() {
@@ -15,15 +17,15 @@ function taskToEmployeeFindAll() {
 }
 
 function taskToEmployeeInsertToTask(t) {
-    return ajaxPost(`${URL_TASK_TO_EMPLOYEE}insert-to-task`, t);
+    return ajaxPost(`${URL_ADMIN_TE}insert-to-task`, t);
 }
 
 function taskToEmployeeInsertToEmployee(t) {
-    return ajaxPost(`${URL_TASK_TO_EMPLOYEE}insert-to-employee`, t);
+    return ajaxPost(`${URL_ADMIN_TE}insert-to-employee`, t);
 }
 
 function taskToEmployeeInsert(t) {
-    return ajaxPost(`${URL_TASK_TO_EMPLOYEE}insert`, t);
+    return ajaxPost(`${URL_ADMIN_TE}insert`, t);
 }
 
 function taskToEmployeeUpdate(t) {
@@ -31,15 +33,15 @@ function taskToEmployeeUpdate(t) {
 }
 
 function taskToEmployeeUpdateAll(t) {
-    return ajaxPut(`${URL_TASK_TO_EMPLOYEE}update-all`, t);
+    return ajaxPut(`${URL_ADMIN_TE}update-all`, t);
 }
 
 function taskToEmployeeDelete(t) {
-    return ajaxDelete(`${URL_TASK_TO_EMPLOYEE}delete`, t);
+    return ajaxDelete(`${URL_ADMIN_TE}delete`, t);
 }
 
 function taskToEmployeePause(t) {
-    return ajaxDelete(`${URL_TASK_TO_EMPLOYEE}pause`, t);
+    return ajaxDelete(`${URL_ADMIN_TE}pause`, t);
 }
 
 function taskToEmployeeSearch(q) {

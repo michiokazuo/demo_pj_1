@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Thống kê</title>
+    <title>Đánh giá tổng quan</title>
     <th:block th:replace="~{/fragment/app-fragment :: head-resource}"></th:block>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -10,30 +10,16 @@
     <link rel="stylesheet" th:href="@{/css/chart.css}">
 </head>
 <body>
-<menu th:replace="~{/fragment/app-fragment :: menu-admin}"></menu>
+<menu th:replace="~{/fragment/app-fragment :: menu-user}"></menu>
 <main>
     <div class="title-page">
         <div class="container">
             <div class="row">
                 <div class="col-12 text-center">
-                    <h1>Thống kê</h1>
+                    <h1>Đề xuất đánh giá</h1>
                 </div>
                 <div class="col-12">
                     <hr>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="tool-page">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <select class="form-control" name="sort" id="sort">
-                        <option>- -</option>
-                        <option>Theo công việc</option>
-                        <option>Theo nhân viên</option>
-                    </select>
                 </div>
             </div>
         </div>
@@ -44,22 +30,24 @@
             <div class="row">
                 <div class="col-12">
                     <div class="table-responsive">
+                        <figure class="highcharts-figure w-100">
+                            <div id="content-chart" class="chart w-100"></div>
+                        </figure>
                         <table class="table table-bordered table-hover bg-white">
                             <thead id="table-title">
                             <tr>
+                                <th scope="col" colspan="4">Công việc tham gia</th>
+                            </tr>
+                            <tr>
                                 <th scope="col">STT</th>
-                                <th scope="col">Tên công việc</th>
+                                <th scope="col">Dự án</th>
+                                <th scope="col">Công việc</th>
                                 <th scope="col">Trạng thái</th>
-                                <th scope="col">Số lượng tham gia</th>
-                                <th scope="col">Nhân viên tham gia</th>
-                                <th>Tiến độ</th>
                             </tr>
                             </thead>
                             <tbody id="table-data">
                             <tr>
                                 <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td><span class="badge badge-danger">Quá hạn</span></td>
                                 <td>Mark</td>
                                 <td>Mark</td>
                                 <td>Mark</td>
@@ -75,6 +63,6 @@
 <footer th:replace="~{/fragment/app-fragment :: footer}"></footer>
 <script th:src="@{/js/model/ajax_model_project.js}"></script>
 <script th:src="@{/js/model/ajax_model_employee.js}"></script>
-<script th:src="@{/js/pages/ajax_page_statistic.js}"></script>
+<script th:src="@{/js/pages/ajax_page_evaluation_employee.js}"></script>
 </body>
 </html>

@@ -3,10 +3,12 @@ package com.project1.service_impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.project1.config.AppConfig;
 import com.project1.convert.Convert;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.project1.dto.EmployeeDTO;
@@ -29,9 +31,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final Convert<Employee, TaskToEmployee, EmployeeDTO> convert;
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Override
     public List<EmployeeDTO> findAll() throws Exception {
-        List<Employee> employees = employeeRepository.findAllByDeletedFalse();
+        List<Employee> employees = employeeRepository.findAllByDeletedFalseAndRole_Id(AppConfig.roles.get(AppConfig.USER).getId());
         List<TaskToEmployee> taskToEmployees = taskToEmployeeRepository.findAllByDeletedFalse();
 
         return convert.toDTO(employees, taskToEmployees);
@@ -93,16 +97,27 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee employee = employeeDTO.getEmployee();
         employee.setDeleted(false);
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         return findById(employeeRepository.save(employee).getId());
     }
 
     @Override
     public EmployeeDTO update(EmployeeDTO employeeDTO) throws Exception {
-        if (employeeDTO != null && employeeDTO.getEmployee() != null
-                && !employeeRepository.existsByEmailOrPhoneAndDeletedFalse(employeeDTO.getEmployee().getEmail()
-                , employeeDTO.getEmployee().getPhone())) {
+        if (employeeDTO != null && employeeDTO.getEmployee() != null) {
             Employee employee = employeeDTO.getEmployee();
+            Employee employeeDB = employeeRepository.findByIdAndDeletedFalse(employee.getId());
+            List<Employee> employeeList = employeeRepository.findByEmailOrPhoneAndDeletedFalse(employee.getEmail()
+                    , employee.getPhone());
+            if (employeeDB == null) return null;
+
+            if (employeeDB.getEmail().equals(employee.getEmail()) || employeeDB.getPhone().equals(employee.getPhone())) {
+                if (employeeList != null && employeeList.size() > 1) return null;
+            } else {
+                if (employeeList != null) return null;
+            }
+
             employee.setDeleted(false);
+            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
             return findById(employeeRepository.save(employee).getId());
         }
 
@@ -110,8 +125,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public boolean delete(Integer id) throws Exception {
+    public boolean delete(String email, Integer id) throws Exception {
         return id != null && id > 0 && (employeeRepository.deleteCustom(id) >= 0
-                && taskToEmployeeRepository.deleteCustomByEmployeeId(id) >= 0);
+                && taskToEmployeeRepository
+                .deleteCustomByEmployeeId(employeeRepository.findByEmailAndDeletedFalse(email), id) >= 0);
     }
 }

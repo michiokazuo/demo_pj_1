@@ -289,6 +289,7 @@ function showChart() {
         indexE = $(this).attr("data-index");
         employee = listEmployee[indexE - 0];
         let taskCompleted = 0, taskValid = 0;
+        let percentInProgress = 0, percentInValid = 0;
         let num_of_task = 0;
         let listTask = employee.taskToEmployees;
         if (listTask && listTask.length > 0) {
@@ -297,22 +298,40 @@ function showChart() {
                 let end = new Date(te.task.endDate);
                 if (te.task.completeDate || te.progress === 100) {
                     taskCompleted++;
-                    if (end.getTime() - new Date(te.lastModify).getTime() > -msDay) taskValid++;
-                } else {
-                    if (end.getTime() - new Date().getTime() > -msDay)
+                    if (end.getTime() - new Date(te.modifyDate).getTime() > -msDay) {
                         taskValid++;
+                        percentInProgress += 1;
+                    } else percentInValid += inValid(te);
+                } else {
+                    if (end.getTime() - new Date().getTime() > -msDay) {
+                        taskValid++;
+                        percentInProgress += inProgress(te);
+                    } else percentInValid += inValid(te);
                 }
             }
         }
+        if (num_of_task !== 0)
+            if (taskValid === 0) {
+                percentInValid /= (num_of_task - taskValid);
+                percentInProgress = 0;
+            } else {
+                if (taskValid === num_of_task) {
+                    percentInValid = 0;
+                    percentInProgress /= taskValid;
+                } else {
+                    percentInProgress /= taskValid;
+                    percentInValid /= (num_of_task - taskValid);
+                }
+            }
 
         Highcharts.chart('content-chart-' + indexE, {
             chart: {
                 type: 'column'
             },
             title: {
-                text: ('Đánh giá : ' + ((taskCompleted !== 0)
-                    ? Math.round(5 * (taskValid / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.'
-                    : 'Hiện tại chưa thể đánh giá do chưa hoàn thành công việc nào.'))
+                text: ('Đề xuất đánh giá : ' + (num_of_task
+                    ? Math.round(5 * (percentInProgress + percentInValid) / 2 * 10 + Number.EPSILON) / 10 + '/5.'
+                    : 'Hiện tại chưa thể đánh giá do chưa thực hiện công việc nào.'))
             },
             xAxis: {
                 categories: [employee.employee.name]

@@ -70,7 +70,7 @@ function viewProject() {
                 return `<tr data-index="${index}">
                         <th scope="row">${index + 1}</th>
                         <td>${dataFilter(project.name)}</td>
-                        <td>${dataFilter(new Date(project.createDate).toLocaleDateString("en-US"))}</td>
+                        <td>${dataFilter(new Date(project.createDate).toLocaleDateString())}</td>
                         <td>${checkStatus(project.createDate, project.endDate, project.completeDate)}</td>
                         <td>
                         <a target="_blank" href="du-an/cong-viec-thanh-phan?projectId=${project.id}" 

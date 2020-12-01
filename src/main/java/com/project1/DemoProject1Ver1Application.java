@@ -1,19 +1,14 @@
 package com.project1;
 
-import com.project1.entities.data.TaskToEmployee;
-import com.project1.entities.key.TaskToEmployeePK;
-import com.project1.repository.EmployeeRepository;
-import com.project1.repository.TaskRepository;
-import com.project1.service.ProjectService;
-import com.project1.service.TaskToEmployeeService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @AllArgsConstructor
 public class DemoProject1Ver1Application implements CommandLineRunner {
 

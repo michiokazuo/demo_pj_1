@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.project1.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import com.project1.dto.TaskDTO;
@@ -14,7 +16,7 @@ import com.project1.service.TaskService;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("api/public/task/*")
+@RequestMapping("api/public/task/admin/*")
 @AllArgsConstructor
 public class TaskController {
 
@@ -88,9 +90,10 @@ public class TaskController {
     }
 
     @DeleteMapping("delete/{id}")
-    public ResponseEntity<Object> delete(@PathVariable("id") Integer id) {
+    public ResponseEntity<Object> delete(Authentication authentication, @PathVariable("id") Integer id) {
         try {
-            if (taskService.delete(id)) {
+            User user = (User) authentication.getPrincipal();
+            if (taskService.delete(user.getUsername(), id)) {
                 return ResponseEntity.ok("Delete Successful");
             }
         } catch (Exception e) {

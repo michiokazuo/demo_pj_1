@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Error</title>
+    <th:block th:replace="~{/fragment/app-fragment :: head-resource}"></th:block>
+</head>
+<body>
+    <main class="container mt-5 mb-5 pt-5 pb-5 rounded shadow text-center bg-white">
+        <i class="far fa-frown text-danger" style="font-size: 100px;"></i>
+        <h2 class="text-danger mt-4" th:if="${status == 500}">Có vài sự cố xuất hiện !</h2>
+        <p class="text-muted" th:if="${status == 500}">Xin lỗi ! Chúng tôi đang cố gắng khắc phục.</p>
+        <h2 class="text-danger mt-4" th:if="${status == 404}">Không tìm thấy trang !</h2>
+        <p class="text-muted" th:if="${status == 404}">Xin lỗi ! Trang web này hiện chưa được hỗ trợ.</p>
+        <h2 class="text-danger mt-4" th:if="${status == 403}">Cảnh báo quyền truy cập !</h2>
+        <p class="text-muted" th:if="${status == 403}">Xin lỗi ! Bạn không được quyền truy cập vào trang này.</p>
+        <h2 class="text-danger mt-4" th:if="${status == 400}">Cảnh báo lỗi yêu cầu !</h2>
+        <p class="text-muted" th:if="${status == 403}">Xin lỗi ! Bạn cần xem lại thông tin của bạn.</p>
+        <h3>Mời bạn quay trở lại <a class="text-primary" th:href="@{/trang-chu}">Trang chủ</a></h3>
+    </main>
+</body>
+</html>

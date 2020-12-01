@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.project1.convert.Convert;
+import com.project1.repository.EmployeeRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
@@ -23,6 +24,8 @@ import lombok.AllArgsConstructor;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+
+    private final EmployeeRepository employeeRepository;
 
     private final TaskToEmployeeRepository taskToEmployeeRepository;
 
@@ -68,9 +71,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public boolean delete(Integer id) throws Exception {
+    public boolean delete(String email, Integer id) throws Exception {
         return id != null && id > 0 && (taskRepository.deleteCustom(id) >= 0
-                && taskToEmployeeRepository.deleteCustomByTaskId(id) >= 0);
+                && taskToEmployeeRepository
+                .deleteCustomByTaskId(employeeRepository.findByEmailAndDeletedFalse(email), id) >= 0);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.project1.dto.TaskDTO;
 import com.project1.entities.data.Project;
 import com.project1.entities.data.Task;
 import com.project1.entities.data.TaskToEmployee;
+import com.project1.repository.EmployeeRepository;
 import com.project1.repository.ProjectRepository;
 import com.project1.repository.TaskRepository;
 import com.project1.repository.TaskToEmployeeRepository;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+
+    private final EmployeeRepository employeeRepository;
 
     private final TaskRepository taskRepository;
 
@@ -130,7 +133,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public boolean delete(Integer id) throws Exception {
+    public boolean delete(String email, Integer id) throws Exception {
         if (!(id != null && id > 0)) return false;
         else {
             List<Task> tasks = taskRepository.findByProjectIdAndDeletedFalse(id);
@@ -141,7 +144,8 @@ public class ProjectServiceImpl implements ProjectService {
             }
 
             return projectRepository.deleteCustom(id) >= 0 && taskRepository.deleteCustomByProjectId(id) >= 0
-                    && taskToEmployeeRepository.deleteCustomByTaskIdIn(ids) >= 0;
+                    && taskToEmployeeRepository
+                    .deleteCustomByTaskIdIn(employeeRepository.findByEmailAndDeletedFalse(email), ids) >= 0;
         }
 
     }

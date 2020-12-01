@@ -25,7 +25,6 @@ public class EmployeeConvert implements Convert<Employee, TaskToEmployee, Employ
                 TaskToEmployee taskToEmployee = listIterator.next();
 
                 if (e.getId().equals(taskToEmployee.getEmployee().getId())) {
-                    taskToEmployee.setEmployee(null);
                     employeeDTO.getTaskToEmployees().add(taskToEmployee);
                     listIterator.remove();
                 }

@@ -1,4 +1,4 @@
-const URL_TASK = "/public/task/";
+const URL_TASK = "/public/task/admin/";
 
 function taskFindAll() {
     return ajaxGet(`${URL_TASK}find-all`);

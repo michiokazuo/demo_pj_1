@@ -2,8 +2,12 @@ package com.project1.controller.api;
 
 import java.util.List;
 
+import com.project1.config.AppConfig;
+import com.project1.repository.EmployeeRepository;
 import com.project1.repository.RoleRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import com.project1.dto.EmployeeDTO;
@@ -19,11 +23,10 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    private final RoleRepository roleRepository;
+    private final EmployeeRepository employeeRepository;
 
-    @GetMapping("find-all")
+    @GetMapping("admin/find-all")
     public ResponseEntity<Object> findAll() {
-
         try {
             List<EmployeeDTO> employeeDTOs = employeeService.findAll();
             return employeeDTOs != null ? ResponseEntity.ok(employeeDTOs) : ResponseEntity.noContent().build();
@@ -33,28 +36,31 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping("find-by-id/{id}")
-    public ResponseEntity<Object> findById(@PathVariable("id") Integer id) {
+    @GetMapping(value = {"find-by-id/{id}", "find-by-id"})
+    public ResponseEntity<Object> findById(Authentication authentication
+            , @PathVariable(name = "id", required = false) Integer id) {
 
         try {
-            EmployeeDTO EmployeeDTO = employeeService.findById(id);
-            return EmployeeDTO != null ? ResponseEntity.ok(EmployeeDTO) : ResponseEntity.noContent().build();
+            User user = (User) authentication.getPrincipal();
+
+            EmployeeDTO employeeDTO = employeeService
+                    .findById(id == null ? employeeRepository.findByEmailAndDeletedFalse(user.getUsername()).getId() : id);
+            return employeeDTO != null ? ResponseEntity.ok(employeeDTO) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @GetMapping("search-sort")
+    @GetMapping("admin/search-sort")
     public ResponseEntity<Object> search_sort(@RequestParam(name = "name", required = false) String name,
-                                              @RequestParam(name = "position", required = false) String position,
                                               @RequestParam(name = "field", required = false) String field,
                                               @RequestParam(name = "isASC", required = false) Boolean isASC) {
 
         try {
             List<EmployeeDTO> employeeDTOs = employeeService.search_sort(
-                    new EmployeeDTO(Employee.builder().name(name).position(position).build(), null), field,
-                    isASC, null);
+                    new EmployeeDTO(Employee.builder().name(name).build(), null)
+                    , field, isASC, null);
             return employeeDTOs != null ? ResponseEntity.ok(employeeDTOs) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,11 +68,10 @@ public class EmployeeController {
         }
     }
 
-    @PostMapping("insert/{role}")
-    public ResponseEntity<Object> insert(@RequestBody EmployeeDTO employeeDTO,
-                                         @PathVariable("role") Integer role) {
+    @PostMapping("insert")
+    public ResponseEntity<Object> insert(@RequestBody EmployeeDTO employeeDTO) {
         try {
-            employeeDTO.getEmployee().setRole(roleRepository.findById(role).orElse(null));
+            employeeDTO.getEmployee().setRole(AppConfig.roles.get(AppConfig.USER));
             EmployeeDTO dto = employeeService.insert(employeeDTO);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
@@ -87,11 +92,12 @@ public class EmployeeController {
         }
     }
 
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<Object> delete(@PathVariable("id") Integer id) {
+    @DeleteMapping("admin/delete/{id}")
+    public ResponseEntity<Object> delete(Authentication authentication, @PathVariable("id") Integer id) {
 
         try {
-            if (employeeService.delete(id)) {
+            User user = (User) authentication.getPrincipal();
+            if (employeeService.delete(user.getUsername(), id)) {
                 return ResponseEntity.ok("Delete Successful");
             }
         } catch (Exception e) {
@@ -100,5 +106,4 @@ public class EmployeeController {
 
         return ResponseEntity.badRequest().build();
     }
-
 }

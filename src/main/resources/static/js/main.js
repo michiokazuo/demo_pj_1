@@ -56,7 +56,7 @@ function checkData(selector, regex, textError) {
 function checkEmail(selector, textError) {
     let val = $(selector).val().trim();
     let check = false;
-    if (val.length > 0 && /^[a-z][a-z0-9_\.]{5,32}@[a-z0-9]{2,}(\.[a-z0-9]{2,4}){1,2}$/.test(val)) {
+    if (val.length > 0 && /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(val)) {
         check = true;
         hiddenError(selector);
     } else {
@@ -79,6 +79,19 @@ function checkPhone(selector, textError) {
     return {val, check};
 }
 
+function checkPassword(selector, textError) {
+    let val = $(selector).val();
+    let check = false;
+    const regex_password = /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/;
+    if (val.length > 0 && regex_password.test(val)) {
+        check = true;
+        hiddenError(selector);
+    } else {
+        viewError(selector, textError);
+    }
+    return {val, check};
+}
+
 function viewError(selector, text) {
     $(selector).addClass("is-invalid");
     $(selector).siblings(".invalid-feedback").html(text);
@@ -86,6 +99,24 @@ function viewError(selector, text) {
 
 function hiddenError(selector) {
     $(selector).removeClass("is-invalid");
+}
+
+function dateDiff(start, end) {
+    return Math.round((new Date(end) - new Date(start)) / (24 * 60 * 60 * 1000)) + 1;
+}
+
+function inProgress(te) {
+    let today = dateDiff(te.task.createDate, new Date());
+    let deadline = dateDiff(te.task.createDate, te.task.endDate);
+    let rs = today / deadline;
+    return te.progress >= rs ? 1 : te.progress / rs;
+}
+
+function inValid(te) {
+    let today = dateDiff(te.task.endDate, new Date());
+    let deadline = dateDiff(te.task.createDate, te.task.endDate);
+    let rs = today / deadline;
+    return rs >= 2 ? 1 : (te.progress - rs);
 }
 
 const URL_API = "/api";
@@ -153,6 +184,26 @@ async function ajaxDelete(url, data) {
         url: URL_API + url,
         timeout: 30000,
         contentType: "application/json",
+        success: function (result, textStatus, xhr) {
+            rs = {
+                data: result,
+                status: xhr.status
+            }
+        }
+    });
+    return rs;
+}
+
+async function ajaxUploadFormData(url, formData) {
+    let rs = null;
+    await $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        cache: false,
+        contentType: false,
+        enctype: "multipart/form-data",
+        processData: false,
         success: function (result, textStatus, xhr) {
             rs = {
                 data: result,

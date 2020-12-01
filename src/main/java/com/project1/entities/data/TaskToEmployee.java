@@ -4,10 +4,8 @@ import javax.persistence.*;
 
 import com.project1.entities.key.TaskToEmployeePK;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -22,29 +20,33 @@ import java.util.Date;
 @Builder
 public class TaskToEmployee {
 
-	@EmbeddedId
-	private TaskToEmployeePK id;
+    @EmbeddedId
+    private TaskToEmployeePK id;
 
-	@Builder.Default
-	private Boolean deleted = false;
+    @Builder.Default
+    private Boolean deleted = false;
 
-	@Builder.Default
-	private Boolean paused = false;
+    @Builder.Default
+    private Boolean paused = false;
 
-	@Builder.Default
-	private Integer progress = 0;
+    @Builder.Default
+    private Integer progress = 0;
 
-	@Temporal(TemporalType.DATE)
-	@Column(name = "last_modify")
-	private Date lastModify;
+    @ManyToOne
+    @MapsId("employeeId")
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
 
-	@ManyToOne
-	@MapsId("employeeId")
-	@JoinColumn(name = "employee_id")
-	private Employee employee;
+    @ManyToOne
+    @MapsId("taskId")
+    @JoinColumn(name = "task_id")
+    private Task task;
 
-	@ManyToOne
-	@MapsId("taskId")
-	@JoinColumn(name = "task_id")
-	private Task task;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "modify_date")
+    private Date modifyDate;
+
+    @ManyToOne
+    @JoinColumn(name = "modify_by")
+    private Employee modifyBy;
 }

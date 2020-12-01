@@ -5,7 +5,15 @@
     <th:block th:replace="~{/fragment/app-fragment :: head-resource}"></th:block>
 </head>
 <body>
-<menu th:replace="~{/fragment/app-fragment :: menu}"></menu>
+<th:block th:if="${admin == null && user == null}">
+    <menu th:replace="~{/fragment/app-fragment :: menu-login}"></menu>
+</th:block>
+<th:block th:if="${admin}">
+    <menu th:replace="~{/fragment/app-fragment :: menu-admin}"></menu>
+</th:block>
+<th:block th:if="${user}">
+    <menu th:replace="~{/fragment/app-fragment :: menu-user}"></menu>
+</th:block>
 <main>
     <div class="title-page">
         <div class="container">
@@ -15,6 +23,26 @@
                 </div>
                 <div class="col-12">
                     <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-data mt-3 mb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 th:if="${admin == null && user == null}">
+                        Bạn chưa đăng nhập vào hệ thống.
+                        <a class="text-primary" th:href="@{/dang-nhap}">Đăng nhập</a>
+                    </h3>
+                    <h3 th:if="${admin}">
+                        Bạn là quản lý của hệ thống. <br>
+                        Hãy quản lý tốt dự án để phát triển công ty.
+                    </h3>
+                    <h3 th:if="${user}">
+                        Bạn là nhân viên. <br>
+                        Hãy thực hiện tốt công việc để phát triển công ty.
+                    </h3>
                 </div>
             </div>
         </div>

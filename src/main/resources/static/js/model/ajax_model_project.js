@@ -1,4 +1,4 @@
-const URL_PROJECT = "/public/project/";
+const URL_PROJECT = "/public/project/admin/";
 
 function projectFindAll() {
     return ajaxGet(`${URL_PROJECT}find-all`);

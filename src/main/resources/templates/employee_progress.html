@@ -5,7 +5,12 @@
     <th:block th:replace="~{/fragment/app-fragment :: head-resource}"></th:block>
 </head>
 <body>
-<menu th:replace="~{/fragment/app-fragment :: menu}"></menu>
+<th:block th:if="${admin}">
+    <menu th:replace="~{/fragment/app-fragment :: menu-admin}"></menu>
+</th:block>
+<th:block th:if="${user}">
+    <menu th:replace="~{/fragment/app-fragment :: menu-user}"></menu>
+</th:block>
 <main>
     <div class="modal fade" id="modal-employee-progress" tabindex="-1"
          aria-labelledby="detail-employee" aria-hidden="true">
@@ -62,37 +67,29 @@
         </div>
     </div>
 
-    <div class="tool-page">
-        <div class="container">
-            <div class="row justify-content-end">
-                <div class="col-md-3">
-                    <select class="form-control bg-light" name="sort" id="sort">
-                        <option>Sắp xếp</option>
-                        <option>A -> Z</option>
-                        <option>Z -> A</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="table-data mt-3 mb-4">
         <div class="container">
             <div class="row">
                 <div class="col-12">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover bg-white">
+                        <table class="table table-bordered table-hover bg-white pt-2 pb-2">
+                            <caption>Công việc đang cập nhật</caption>
                             <thead>
+                            <tr class="text-primary"><th colspan="6">Công việc đang cập nhật</th></tr>
                             <tr>
                                 <th scope="col">STT</th>
                                 <th scope="col">Công việc tham gia</th>
                                 <th scope="col">Tiến độ</th>
+                                <th scope="col">Cập nhật lần cuối</th>
+                                <th scope="col">Người cập nhật</th>
                                 <th scope="col">Hành động</th>
                             </tr>
                             </thead>
-                            <tbody id="table-data">
+                            <tbody id="table-data-in-progress">
                             <tr>
                                 <th scope="row">11</th>
+                                <td>Mark</td>
+                                <td>Mark</td>
                                 <td>Mark</td>
                                 <td>Mark</td>
                                 <td>
@@ -101,6 +98,52 @@
                                         <i class="fas fa-edit"></i> Cập nhật
                                     </button>
                                 </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <hr>
+                        <table class="table table-bordered table-hover bg-white pt-2 pb-2">
+                            <caption>Công việc hoàn thành</caption>
+                            <thead>
+                            <tr class="text-success"><th colspan="5">Công việc hoàn thành</th></tr>
+                            <tr>
+                                <th scope="col">STT</th>
+                                <th scope="col">Công việc tham gia</th>
+                                <th scope="col">Dự án</th>
+                                <th scope="col">Cập nhật lần cuối</th>
+                                <th scope="col">Người cập nhật</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table-data-complete">
+                            <tr>
+                                <th scope="row">11</th>
+                                <td>Mark</td>
+                                <td>Mark</td>
+                                <td>Mark</td>
+                                <td>Mark</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <hr>
+                        <table class="table table-bordered table-hover bg-white pt-2 pb-2">
+                            <caption>Công việc bị tạm dừng</caption>
+                            <thead>
+                            <tr class="text-secondary"><th colspan="5">Công việc bị tạm dừng</th></tr>
+                            <tr>
+                                <th scope="col">STT</th>
+                                <th scope="col">Công việc tham gia</th>
+                                <th scope="col">Dự án</th>
+                                <th scope="col">Cập nhật lần cuối</th>
+                                <th scope="col">Người cập nhật</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table-data-pause">
+                            <tr>
+                                <th scope="row">11</th>
+                                <td>Mark</td>
+                                <td>Mark</td>
+                                <td>Mark</td>
+                                <td>Mark</td>
                             </tr>
                             </tbody>
                         </table>

@@ -14,11 +14,19 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     List<Employee> findAllByDeletedFalse();
 
+    List<Employee> findAllByDeletedFalseAndRole_Id(Integer roleId);
+
     Employee findByIdAndDeletedFalse(Integer id);
 
     Boolean existsByEmailAndPasswordAndDeletedFalse(String email, String password);
 
+    Employee findByEmailAndDeletedFalse(String email);
+
     Boolean existsByEmailOrPhoneAndDeletedFalse(String email, String phone);
+
+    Boolean existsByEmailOrPhoneAndIdNotAndDeletedFalse(String email, String phone, Integer id);
+
+    List<Employee> findByEmailOrPhoneAndDeletedFalse(String email, String phone);
 
     @Query("update Employee e set e.deleted = true where e.id = ?1")
     @Modifying

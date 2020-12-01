@@ -20,4 +20,7 @@ public class Role {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "content")
+    private String content;
 }

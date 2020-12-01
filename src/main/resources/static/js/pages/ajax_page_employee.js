@@ -1,5 +1,5 @@
-let btnConfirmSave, btnConfirmDelete, btnAddEmployee, selectSort, textNameSearch, textPositionSearch, btnSearch,
-    textName, textPosition, textDepartment, textEmail, textPhone, tableData;
+let btnConfirmSave, btnConfirmDelete, btnAddEmployee, selectSort, textNameSearch, btnSearch,
+    textName, textPassword, textEmail, textPhone, tableData;
 let listEmployee = [];
 let listSort = [
     {text: "(A -> Z) Tên", val: "0", field: "name", isASC: "true"},
@@ -15,12 +15,10 @@ $(async function () {
     btnAddEmployee = $("#btn-add-employee");
     selectSort = $("#sort");
     textNameSearch = $("#name-search");
-    textPositionSearch = $("#position-search");
     btnSearch = $("#btn-search");
-    textPosition = $("#position");
-    textDepartment = $("#department");
     textEmail = $("#email");
     textPhone = $("#phone");
+    textPassword = $("#password");
     tableData = $("#table-data");
 
     listSort = listSort.map((data, index) => {
@@ -62,7 +60,6 @@ function viewEmployee() {
                 return `<tr data-index="${index}">
                                 <th scope="row">${index + 1}</th>
                                 <td>${dataFilter(employee.name)}</td>
-                                <td>${dataFilter(employee.position)}</td>
                                 <td><a href="nhan-vien/tien-do-ca-nhan?employeeId=${employee.id}" target="_blank"
                                 class="text-decoration-none text-light btn btn-success m-1">
                                     <i class="fas fa-tasks"></i>
@@ -108,10 +105,9 @@ function updateEmployee() {
         employee = employeeDTO.employee;
 
         textName.val(employee.name);
-        textPosition.val(employee.position);
         textEmail.val(employee.email);
         textPhone.val(employee.phone);
-        textDepartment.val(employee.department);
+        textPassword.val(employee.password)
 
         $("#modal-employee").modal("show");
     });
@@ -120,15 +116,14 @@ function updateEmployee() {
 function confirmSaveEmployee() {
     btnConfirmSave.click(async function () {
         let {val: valName, check: checkName} = checkData(textName, /./, "Bạn chưa nhập tên nhân viên");
-        let {val: valDepartment, check: checkDepartment} = checkData(textDepartment, /./, "Bạn chưa nhập phòng ban");
-        let {val: valPosition, check: checkPosition} = checkData(textPosition, /./, "Bạn chưa nhập chức vụ nhân viên");
         let {val: valPhone, check: checkPhoneNumber} = checkPhone(textPhone, "Bạn chưa nhập số điện thoại");
         let {val: valEmail, check: checkEmailEmployee} = checkEmail(textEmail, "Bạn chưa nhập email");
+        let {val: valuePassword, check: checkPasswordU} = checkPassword(textPassword, "Bạn nhập mật khẩu chưa đúng định dạng(tối thiểu 8 kí tự gồm cả số và chữ)");
 
-        if (checkPhoneNumber && checkName && checkDepartment && checkPosition && checkEmailEmployee) {
+
+        if (checkPhoneNumber && checkName && checkPasswordU && checkEmailEmployee) {
             employeeDTO.employee.name = valName;
-            employeeDTO.employee.department = valDepartment;
-            employeeDTO.employee.position = valPosition;
+            employeeDTO.employee.password = valuePassword;
             employeeDTO.employee.phone = valPhone;
             employeeDTO.employee.email = valEmail;
 
@@ -222,13 +217,11 @@ function sortEmployee() {
 
 async function search_sort() {
     let valNameSearch = textNameSearch.val().trim();
-    let valPositionSearch = textPositionSearch.val().trim();
 
     let indexSort = selectSort.val();
     let sort = listSort[indexSort - 0];
 
     let q = (valNameSearch === "" ? "" : ("name=" + valNameSearch + "&"))
-        + (valPositionSearch === "" ? "" : ("position=" + valPositionSearch + "&"))
         + (sort ? ("field=" + sort.field + "&isASC=" + sort.isASC) : "");
 
     listEmployee = [];

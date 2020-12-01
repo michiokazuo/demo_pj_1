@@ -16,7 +16,7 @@ let listSort = [
     {text: "Tạo gần đây", val: "", field: "createDate", isASC: "false"}
 ]
 let indexTask, taskDTO, task, indexEmployee;
-let checkAction, idProject, checkComplete, checkInsert;
+let checkAction, idProject, checkComplete, checkInsert, checkInsertAgain = false;
 
 $(async function () {
     textName = $("#name");
@@ -175,7 +175,18 @@ function taskToEmployee() {
             .then(function (rs) {
                 if (rs.status === 200) {
                     check = true;
-                    if(!listTask[indexTask - 0].taskToEmployees) listTask[indexTask - 0].taskToEmployees = [];
+                    checkInsertAgain = false;
+                    if (!listTask[indexTask - 0].taskToEmployees) listTask[indexTask - 0].taskToEmployees = [];
+                    for (let te of listTask[indexTask - 0].taskToEmployees) {
+                        if (te.task.id === rs.data.task.id && te.employee.id === rs.data.employee.id)
+                            checkInsertAgain = true;
+                    }
+                    if (checkInsertAgain)
+                        listTask[indexTask - 0].taskToEmployees =
+                            listTask[indexTask - 0].taskToEmployees.filter((data, index) => {
+                                return data.id.employeeId !== rs.data.id.employeeId;
+                            })
+
                     listTask[indexTask - 0].taskToEmployees.push(rs.data);
                 }
             })
@@ -184,6 +195,7 @@ function taskToEmployee() {
             });
 
         alert("Giao việc " + (check ? "thành công." : "thất bại hoặc nhân viên đó đã nhận công việc này!"));
+        viewTask();
         if (check) {
             await loadEmployee();
             $("#modal-employee").modal("hide");
@@ -206,12 +218,12 @@ function viewDataProgress() {
             if (data) {
                 return `<tr data-index="${index}">
                         <th scope="row">${index + 1}</th>
-                        <td>${dataFilter(data.employee.id + '. ' + data.employee.name + `${data.paused ? ' (Tạm dừng công việc)' : ((index + 1 === listTE.length && checkInsert) ? ' (Mới thêm)' : '')}`)}</td>
+                        <td>${dataFilter(data.employee.id + '. ' + data.employee.name + `${data.paused ? ' (Tạm dừng công việc)' : ((index + 1 === listTE.length && checkInsert) ? (checkInsertAgain ? ' (Thêm lại)' : ' (Mới thêm)') : '')}`)}</td>
                         <td>${dataFilter(checkProgress(data))}</td>
                         <td>
                              <input class="form-control bg-light " type="number" min="0" max="100"
                                   oninput="validity.valid||(value='');" id="progress${index}" 
-                                  value="${data.progress}" ${(data.paused || (index + 1 === listTE.length && checkInsert))  ? `disabled` : ''}/>
+                                  value="${data.progress}" ${(data.paused || (index + 1 === listTE.length && checkInsert)) ? (checkInsertAgain ? '' : `disabled`) : ''}/>
                              <div class="invalid-feedback">Bạn chưa nhập tiến độ đúng định dạng.
                              </div>
                         </td>
@@ -238,6 +250,7 @@ function updateProgress() {
                     check = false;
                 }
             }
+        else check = false;
 
         if (check) {
             let mess = "Cập nhật không thành công thành công";
@@ -259,7 +272,7 @@ function updateProgress() {
                 await loadEmployee();
                 $("#modal-update-progress").modal("hide");
                 viewEmployee();
-                if(checkInsert) $("#modal-employee").modal("show");
+                if (checkInsert) $("#modal-employee").modal("show");
                 viewTask();
             }
         }
@@ -289,9 +302,9 @@ function viewTask() {
                                 + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
                                 <td><button type="button" class="btn btn-danger ${taskToEmployees[i].progress !== 0 ? 'pause-employee' : 'delete-employee'}"
-                                ${(taskToEmployees[i].paused || taskToEmployees[i].task.completeDate)  ? `disabled` : ''}>`
-                                   + `${taskToEmployees[i].paused ? 'Đã tạm dừng' 
-                                    : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng` 
+                                ${(taskToEmployees[i].paused || taskToEmployees[i].task.completeDate) ? `disabled` : ''}>`
+                                + `${taskToEmployees[i].paused ? 'Đã tạm dừng'
+                                    : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng`
                                         : `<i class="far fa-trash-alt"></i> Xóa`)}` +
                                 `</button></td>`;
                         else
@@ -312,7 +325,7 @@ function viewTask() {
                 return `<tr data-index="${index}" data-index-employee="0">
                                 <th scope="row" rowspan="${length}">${index + 1}</th>
                                 <td rowspan="${length}">${dataFilter(task.name)}</td>
-                                <td rowspan="${length}">${dataFilter(new Date(task.createDate).toLocaleDateString("en-US"))}</td>
+                                <td rowspan="${length}">${dataFilter(new Date(task.createDate).toLocaleDateString())}</td>
                                 <td rowspan="${length}">${checkStatus(task.createDate, task.endDate, task.completeDate)}</td>`
                     + first +
                     `<td rowspan="${length}" width="150px">
@@ -592,8 +605,9 @@ function confirmPauseEmployee() {
 
         $("#modal-pause-employee").modal("hide");
         alertReport(check, mess);
-        if(check){
+        if (check) {
             viewDataProgress();
+            viewTask();
         }
     })
 }

@@ -11,6 +11,8 @@ import com.project1.repository.TaskToEmployeeRepository;
 import com.project1.service.EmployeeService;
 import com.project1.service.TaskService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import com.project1.dto.TaskDTO;
@@ -37,7 +39,7 @@ public class TaskToEmployeeController {
 
     private final EmployeeService employeeService;
 
-    @GetMapping("find-all-task")
+    @GetMapping("admin/find-all-task")
     public ResponseEntity<Object> findAllTask() {
         try {
             List<Task> tasks = taskRepository.findAllByDeletedFalseAndCompleteDateIsNull();
@@ -48,7 +50,7 @@ public class TaskToEmployeeController {
         }
     }
 
-    @GetMapping("find-all-employee")
+    @GetMapping("admin/find-all-employee")
     public ResponseEntity<Object> findAllEmployee() {
         try {
             List<Employee> employees = employeeRepository.findAllByDeletedFalse();
@@ -61,7 +63,7 @@ public class TaskToEmployeeController {
 
     @GetMapping("search-by-name")
     public ResponseEntity<Object> searchByName(@RequestParam(name = "tName", required = false) String tName,
-                                         @RequestParam(name = "eName", required = false) String eName) {
+                                               @RequestParam(name = "eName", required = false) String eName) {
 
         try {
             List<TaskDTO> taskDTOs = taskToEmployeeService.search(tName, eName);
@@ -85,10 +87,11 @@ public class TaskToEmployeeController {
         }
     }
 
-    @PostMapping("insert-to-task")
-    public ResponseEntity<Object> insertToTask(@RequestBody TaskToEmployee taskToEmployee) {
+    @PostMapping("admin/insert-to-task")
+    public ResponseEntity<Object> insertToTask(Authentication authentication, @RequestBody TaskToEmployee taskToEmployee) {
         try {
-            TaskDTO dto = taskService.findById(taskToEmployeeService.insert(taskToEmployee).getTask().getId());
+            User user = (User) authentication.getPrincipal();
+            TaskDTO dto = taskService.findById(taskToEmployeeService.insert(user.getUsername(), taskToEmployee).getTask().getId());
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,10 +99,11 @@ public class TaskToEmployeeController {
         }
     }
 
-    @PostMapping("insert-to-employee")
-    public ResponseEntity<Object> insertToEmployee(@RequestBody TaskToEmployee taskToEmployee) {
+    @PostMapping("admin/insert-to-employee")
+    public ResponseEntity<Object> insertToEmployee(Authentication authentication, @RequestBody TaskToEmployee taskToEmployee) {
         try {
-            EmployeeDTO dto = employeeService.findById(taskToEmployeeService.insert(taskToEmployee).getEmployee().getId());
+            User user = (User) authentication.getPrincipal();
+            EmployeeDTO dto = employeeService.findById(taskToEmployeeService.insert(user.getUsername(), taskToEmployee).getEmployee().getId());
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,10 +111,11 @@ public class TaskToEmployeeController {
         }
     }
 
-    @PostMapping("insert")
-    public ResponseEntity<Object> insert(@RequestBody TaskToEmployee taskToEmployee) {
+    @PostMapping("admin/insert")
+    public ResponseEntity<Object> insert(Authentication authentication, @RequestBody TaskToEmployee taskToEmployee) {
         try {
-            TaskToEmployee dto = taskToEmployeeService.insert(taskToEmployee);
+            User user = (User) authentication.getPrincipal();
+            TaskToEmployee dto = taskToEmployeeService.insert(user.getUsername(), taskToEmployee);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,10 +123,11 @@ public class TaskToEmployeeController {
         }
     }
 
-    @PutMapping("update-all")
-    public ResponseEntity<Object> updateAll(@RequestBody List<TaskToEmployee> taskToEmployees) {
+    @PutMapping("admin/update-all")
+    public ResponseEntity<Object> updateAll(Authentication authentication, @RequestBody List<TaskToEmployee> taskToEmployees) {
         try {
-            List<TaskToEmployee> dtos = taskToEmployeeService.updateAll(taskToEmployees);
+            User user = (User) authentication.getPrincipal();
+            List<TaskToEmployee> dtos = taskToEmployeeService.updateAll(user.getUsername(), taskToEmployees);
             return dtos != null ? ResponseEntity.ok(dtos) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,9 +136,10 @@ public class TaskToEmployeeController {
     }
 
     @PutMapping("update")
-    public ResponseEntity<Object> update(@RequestBody TaskToEmployee taskToEmployee) {
+    public ResponseEntity<Object> update(Authentication authentication, @RequestBody TaskToEmployee taskToEmployee) {
         try {
-            TaskToEmployee dto = taskToEmployeeService.update(taskToEmployee);
+            User user = (User) authentication.getPrincipal();
+            TaskToEmployee dto = taskToEmployeeService.update(user.getUsername(), taskToEmployee);
             return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,10 +147,11 @@ public class TaskToEmployeeController {
         }
     }
 
-    @DeleteMapping("delete")
-    public ResponseEntity<Object> delete(@RequestBody TaskToEmployee taskToEmployee) {
+    @DeleteMapping("admin/delete")
+    public ResponseEntity<Object> delete(Authentication authentication, @RequestBody TaskToEmployee taskToEmployee) {
         try {
-            if (taskToEmployeeService.delete(taskToEmployee)) {
+            User user = (User) authentication.getPrincipal();
+            if (taskToEmployeeService.delete(user.getUsername(), taskToEmployee)) {
                 return ResponseEntity.ok("Delete Successful");
             }
         } catch (Exception e) {
@@ -153,10 +161,12 @@ public class TaskToEmployeeController {
         return ResponseEntity.badRequest().build();
     }
 
-    @DeleteMapping("pause")
-    public ResponseEntity<Object> pause(@RequestBody TaskToEmployee taskToEmployee) {
+    @DeleteMapping("admin/pause")
+    public ResponseEntity<Object> pause(Authentication authentication, @RequestBody TaskToEmployee taskToEmployee) {
         try {
-            if (taskToEmployeeService.pause(taskToEmployee)) {
+            User user = (User) authentication.getPrincipal();
+
+            if (taskToEmployeeService.pause(user.getUsername(), taskToEmployee)) {
                 return ResponseEntity.ok(taskToEmployeeRepository.findByIdAndDeletedFalseAndPausedTrue(taskToEmployee.getId()));
             }
         } catch (Exception e) {

@@ -1,37 +1,27 @@
-let numberProgress, tableData, btnProgress, textTask, selectSort, textNameTask;
+let numberProgress, tableDataInProgress, tableDataComplete, tableDataPause, btnProgress, textTask;
 let employeeDTO = {};
 let listTaskToEmployee = [];
-let listSort = [
-    {text: "Hoàn thành", val: "1", field: 1},
-    {text: "Đang thực hiện", val: "0", field: 0},
-    {text: "Quá hạn", val: "-1", field: -1}
-]
+let listInProgress = [], listComplete = [], listPause = [];
+
 let indexTask, idEmployee;
 
 $(async function () {
     btnProgress = $("#btn-progress");
     textTask = $("#progress-task");
     numberProgress = $("#progress");
-    tableData = $("#table-data");
-    selectSort = $("#sort");
-    textNameTask = $("#task-search");
+    tableDataInProgress = $("#table-data-in-progress");
+    tableDataComplete = $("#table-data-complete");
+    tableDataPause = $("#table-data-pause");
 
     let url = new URL(window.location.href);
     idEmployee = url.searchParams.get("employeeId");
 
-    listSort = listSort.map((data, index) => {
-        data.val = index;
-        return data;
-    });
-
     await loadEmployee();
 
-    $("#title-page").html(`<h1>Quản lý Tiến độ công việc cá nhân của ${employeeDTO.employee.name}</h1>`);
+    $("#title-page").html(`<h1>Quản lý Tiến độ công việc cá nhân <br> ${employeeDTO.employee.name}</h1>`);
 
-    showSelectOption(selectSort, listSort, "Tất cả");
     viewTaskOfEmployee();
     confirmProgressTask();
-    searchTaskOfEmployee();
 });
 
 async function loadEmployee() {
@@ -41,6 +31,7 @@ async function loadEmployee() {
             if (rs.status === 200) {
                 employeeDTO = rs.data;
                 listTaskToEmployee = employeeDTO.taskToEmployees;
+                classifyTask(listTaskToEmployee);
             }
         })
         .catch(function (e) {
@@ -49,18 +40,20 @@ async function loadEmployee() {
 }
 
 function viewTaskOfEmployee() {
-    let rs = `<tr><td colspan='4'><strong>No Data</strong></td></tr>`;
+    let rs = `<tr><td colspan='6'><strong>No Data</strong></td></tr>`;
 
-    if (listTaskToEmployee && listTaskToEmployee.length > 0)
-        rs = listTaskToEmployee.map((data, index) => {
+    if (listInProgress && listInProgress.length > 0)
+        rs = listInProgress.map((data, index) => {
             if (data) {
                 return `<tr data-index="${index}">
                                 <th scope="row">${index + 1}</th>
-                                <td>${dataFilter(data.task.name + " - " + data.task.project.name)}</td>
+                                <td>${dataFilter(data.task.id + "." + data.task.name + " ( " + data.task.project.id
+                    + "." + data.task.project.name + " )")}</td>
                                 <td>${dataFilter(checkProgress(data))}</td>
+                                <td>${dataFilter(new Date(data.modifyDate).toLocaleDateString())}</td>
+                                <td>${dataFilter(lastModify(employeeDTO.employee, data.modifyBy))}</td>
                                 <td> 
-                                    <button type="button" class="btn btn-warning update-progress" 
-                                    ${data.task.completeDate || data.paused ? `disabled` : ''}>
+                                    <button type="button" class="btn btn-warning update-progress" >
                                         <i class="fas fa-edit"></i> Cập nhật
                                     </button>
                                 </td>
@@ -69,16 +62,50 @@ function viewTaskOfEmployee() {
             return ``;
         }).join("");
 
-    tableData.html(rs);
+    tableDataInProgress.html(rs);
     progressTask();
+
+    rs = `<tr><td colspan='5'><strong>No Data</strong></td></tr>`;
+    if (listComplete && listComplete.length > 0)
+        rs = listComplete.map((data, index) => {
+            if (data) {
+                return `<tr data-index="${index}">
+                                <th scope="row">${index + 1}</th>
+                                <td>${dataFilter(data.task.id + "." + data.task.name)}</td> 
+                                <td>${dataFilter(data.task.project.id + "." + data.task.project.name)}</td>
+                                <td>${dataFilter(new Date(data.modifyDate).toLocaleDateString())}</td>
+                                <td>${dataFilter(lastModify(employeeDTO.employee, data.modifyBy))}</td>
+                            </tr>`;
+            }
+            return ``;
+        }).join("");
+
+    tableDataComplete.html(rs);
+
+    rs = `<tr><td colspan='5'><strong>No Data</strong></td></tr>`;
+    if (listPause && listPause.length > 0)
+        rs = listPause.map((data, index) => {
+            if (data) {
+                return `<tr data-index="${index}">
+                                <th scope="row">${index + 1}</th>
+                                <td>${dataFilter(data.task.id + "." + data.task.name)}</td> 
+                                <td>${dataFilter(data.task.project.id + "." + data.task.project.name)}</td>
+                                <td>${dataFilter(new Date(data.modifyDate).toLocaleDateString())}</td>
+                                <td>${dataFilter(lastModify(employeeDTO.employee, data.modifyBy))}</td>
+                            </tr>`;
+            }
+            return ``;
+        }).join("");
+
+    tableDataPause.html(rs);
 }
 
 function progressTask() {
     $(".update-progress").click(function () {
         indexTask = $(this).parents("tr").attr("data-index");
 
-        textTask.val(listTaskToEmployee[indexTask - 0].task.name);
-        numberProgress.val(listTaskToEmployee[indexTask - 0].progress);
+        textTask.val(listInProgress[indexTask - 0].task.name);
+        numberProgress.val(listInProgress[indexTask - 0].progress);
 
         $("#modal-employee-progress").modal("show");
     });
@@ -92,12 +119,12 @@ function confirmProgressTask() {
             let mess = "Sửa không thành công";
             let check = false;
 
-            listTaskToEmployee[indexTask - 0].progress = valProgress - 0;
+            listInProgress[indexTask - 0].progress = valProgress - 0;
 
-            await taskToEmployeeUpdate(listTaskToEmployee[indexTask - 0])
+            await taskToEmployeeUpdate(listInProgress[indexTask - 0])
                 .then(rs => {
                     if (rs.status === 200) {
-                        listTaskToEmployee[indexTask - 0] = rs.data;
+                        listInProgress[indexTask - 0] = rs.data;
 
                         mess = "Sửa thành công.";
                         check = true;
@@ -110,29 +137,21 @@ function confirmProgressTask() {
             viewTaskOfEmployee();
             $("#modal-employee-progress").modal("hide");
             alertReport(check, mess);
-        }else
+        } else
             viewError(numberProgress, "Bạn chưa nhập tiến độ");
     });
 }
 
-function searchTaskOfEmployee() {
-    selectSort.change(async function () {
-        let indexSort = selectSort.val();
-        let sort = indexSort && indexSort.length > 0 ? listSort[indexSort - 0] : null;
+function classifyTask(listTE) {
+    if (listTE)
+        for (let te of listTE) {
+            if (te.paused) listPause.push(te);
+            else if (te.task.completeDate) listComplete.push(te);
+            else listInProgress.push(te);
+        }
+}
 
-        let q = (sort ? ("status=" + sort.field + "&") : "") + "employeeId=" + employeeDTO.employee.id;
-
-        listTaskToEmployee = [];
-        await taskToEmployeeSearch(q)
-            .then(rs => {
-                if (rs.status === 200) {
-                    listTaskToEmployee = rs.data;
-                }
-            })
-            .catch(function (e) {
-                console.log(e);
-            });
-
-        viewTaskOfEmployee();
-    });
+function lastModify(e, p) {
+    if (e.id === p.id) return 'Tôi';
+    else return 'Quản lý';
 }

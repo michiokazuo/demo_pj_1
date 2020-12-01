@@ -5,13 +5,15 @@ import com.project1.entities.data.Project;
 import com.project1.service.ProjectService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/public/project/*")
+@RequestMapping("api/public/project/admin/*")
 @AllArgsConstructor
 public class ProjectController {
 
@@ -79,9 +81,10 @@ public class ProjectController {
     }
 
     @DeleteMapping("delete/{id}")
-    public ResponseEntity<Object> delete(@PathVariable("id") Integer id) {
+    public ResponseEntity<Object> delete(Authentication authentication, @PathVariable("id") Integer id) {
         try {
-            if (projectService.delete(id)) {
+            User user = (User) authentication.getPrincipal();
+            if (projectService.delete(user.getUsername(), id)) {
                 return ResponseEntity.ok("Delete Successful");
             }
         } catch (Exception e) {
