@@ -31,9 +31,18 @@ function signUp() {
 function submitSignUp() {
     btnSubmitSignUp.click(async function () {
         let {val: valueName, check: checkName} = checkData(nameSignUp, /./, "Bạn chưa nhập tên nhân viên");
-        let {val: valueEmailSignUp, check: checkEmailSignUp} = checkEmail(emailSignUp, "Bạn chưa nhập email đúng định dạng");
-        let {val: valuePasswordSignUp, check: checkPasswordSignUp} = checkPassword(passwordSignUp, "Bạn nhập mật khẩu chưa đúng định dạng (tối thiểu 8 kí tự gồm cả số và chữ)");
-        let {val: valPhone, check: checkPhoneNumber} = checkPhone(phoneSignUp, "Bạn chưa nhập số điện thoại đúng định dạng");
+        let {
+            val: valueEmailSignUp,
+            check: checkEmailSignUp
+        } = checkEmail(emailSignUp, "Bạn chưa nhập email đúng định dạng");
+        let {
+            val: valuePasswordSignUp,
+            check: checkPasswordSignUp
+        } = checkPassword(passwordSignUp, "Bạn nhập mật khẩu chưa đúng định dạng (tối thiểu 8 kí tự gồm cả số và chữ)");
+        let {
+            val: valPhone,
+            check: checkPhoneNumber
+        } = checkPhone(phoneSignUp, "Bạn chưa nhập số điện thoại đúng định dạng");
 
         if (checkName && checkEmailSignUp && checkPasswordSignUp && checkPhoneNumber) {
             employeeDTO.employee.name = valueName;
@@ -65,14 +74,19 @@ function submitSignUp() {
                     .then((rs) => {
                         if (rs.status === 200) {
                             check = true;
-                            window.location.href = "/trang-chu";
+                            // window.location.href = "/trang-chu";
                         }
                     }).catch(e => {
                         console.log(e);
                     });
-                if (check)
+                if (check) {
                     alertReport(true, "Đăng nhập thành công");
-                else
+                    await notify_impl(employeeDTO.employee.email, "Đăng ký thành công",
+                        `Chào mừng bạn đến với hệ thống của chúng thôi.<br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
+                    window.location.href = "/trang-chu";
+                } else
                     alertReport(false, "Có lỗi xảy ra. Vui lòng đăng nhập lại!!!");
             } else
                 alertReport(check, "Đăng ký không thành công!!!");
@@ -83,8 +97,14 @@ function submitSignUp() {
 
 function login() {
     btnLogin.click(async function () {
-        let {val: valueEmailLogin, check: checkEmailLogin} = checkEmail(emailLogin, "Bạn chưa nhập email đúng định dạng");
-        let {val: valuePasswordLogin, check: checkPasswordLogin} = checkPassword(passwordLogin, "Bạn nhập mật khẩu chưa đúng định dạng(tối thiểu 8 kí tự gồm cả số và chữ)");
+        let {
+            val: valueEmailLogin,
+            check: checkEmailLogin
+        } = checkEmail(emailLogin, "Bạn chưa nhập email đúng định dạng");
+        let {
+            val: valuePasswordLogin,
+            check: checkPasswordLogin
+        } = checkPassword(passwordLogin, "Bạn nhập mật khẩu chưa đúng định dạng(tối thiểu 8 kí tự gồm cả số và chữ)");
         if (checkEmailLogin && checkPasswordLogin) {
             let formData = new FormData();
             formData.append("username", valueEmailLogin);

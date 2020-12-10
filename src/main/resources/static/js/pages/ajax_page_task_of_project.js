@@ -194,12 +194,18 @@ function taskToEmployee() {
                 console.log(e);
             });
 
+
         alert("Giao việc " + (check ? "thành công." : "thất bại hoặc nhân viên đó đã nhận công việc này!"));
         viewTask();
         if (check) {
             await loadEmployee();
             $("#modal-employee").modal("hide");
             viewDataProgress();
+            await notify_impl(taskToE.employee.email, checkInsertAgain ? "Giao lại công việc" : "Giao công việc mới",
+                `Bạn vừa giao công việc <b>${taskToE.task.name}</b> thuộc dự án <b>${taskToE.task.project.name}</b> 
+                   vào lúc ${new Date()}.<br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
         }
     });
 }
@@ -242,7 +248,10 @@ function updateProgress() {
         let check = true;
         if (listTE && listTE.length > 0)
             for (let i = 0; i < listTE.length; i++) {
-                let {val: valProgress, check: checkProgress} = checkData($(`#progress${i}`), /^\d+$/, "Bạn chưa nhập tiến độ");
+                let {
+                    val: valProgress,
+                    check: checkProgress
+                } = checkData($(`#progress${i}`), /^\d+$/, "Bạn chưa nhập tiến độ");
                 if (checkProgress && valProgress - 0 >= 0 && valProgress - 0 <= 100) {
                     listTE[i].progress = valProgress - 0;
                 } else {
@@ -274,6 +283,16 @@ function updateProgress() {
                 viewEmployee();
                 if (checkInsert) $("#modal-employee").modal("show");
                 viewTask();
+                let emails = "";
+                listTE.forEach(item => {
+                    emails += (" " + item.employee.email);
+                })
+                await notify_impl(emails.trim(), "Cập nhật lại công việc",
+                    `Bạn vừa được quản lý cập nhật công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
+                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> 
+                   vào lúc ${new Date()}.<br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
             }
         }
     })
@@ -570,6 +589,13 @@ function confirmDeleteEmployee() {
         await loadEmployee();
         viewEmployee();
         alertReport(check, mess);
+        if (check)
+            await notify_impl(taskDTO.taskToEmployees[indexEmployee - 0].employee.email, "Xóa công việc",
+                `Bạn vừa bị xóa khỏi công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
+                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> 
+                   vào lúc ${new Date()}.<br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
     })
 }
 
@@ -608,6 +634,12 @@ function confirmPauseEmployee() {
         if (check) {
             viewDataProgress();
             viewTask();
+            await notify_impl(taskDTO.taskToEmployees[indexEmployee - 0].employee.email, "Tạm dừng công việc",
+                `Bạn vừa bị tạm dừng công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
+                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> 
+                   vào lúc ${new Date()}.<br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
         }
     })
 }

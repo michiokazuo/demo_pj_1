@@ -162,6 +162,12 @@ function confirmSaveEmployee() {
             selectSort.prop('selectedIndex', 0);
             $("#modal-employee").modal("hide");
             alertReport(check, mess);
+            if(check && !checkAction)
+                await notify_impl(valEmail, "Tạo tài khoản thành công",
+                    `Bạn vừa được quản lý tạo tài khoản vào lúc ${new Date()}.<br>
+                    Mật khẩu của bạn là: <b>${valuePassword}</b> <br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
         }
 
     });

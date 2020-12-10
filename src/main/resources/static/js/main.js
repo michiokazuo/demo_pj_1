@@ -119,6 +119,21 @@ function inValid(te) {
     return rs >= 2 ? 1 : (te.progress - rs);
 }
 
+async function notify_impl(emails, header, content) {
+    let formData = new FormData();
+    formData.append("emails", emails);
+    formData.append("header", header);
+    formData.append("content", content);
+
+    await notify(formData).then((rs) => {
+        if (rs.status === 200)
+            console.log(rs.data);
+        else console.log("no content");
+    }).catch(e => {
+        console.log(e);
+    });
+}
+
 const URL_API = "/api";
 
 async function ajaxGet(url) {
