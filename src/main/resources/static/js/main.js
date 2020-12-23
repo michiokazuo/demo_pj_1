@@ -109,14 +109,16 @@ function inProgress(te) {
     let today = dateDiff(te.task.createDate, new Date());
     let deadline = dateDiff(te.task.createDate, te.task.endDate);
     let rs = today / deadline;
-    return te.progress >= rs ? 1 : te.progress / rs;
+    let progress = te.progress / 100;
+    return progress >= rs ? 1 : progress / rs;
 }
 
 function inValid(te) {
     let today = dateDiff(te.task.endDate, new Date());
     let deadline = dateDiff(te.task.createDate, te.task.endDate);
     let rs = today / deadline;
-    return rs >= 2 ? 1 : (te.progress - rs);
+    let progress = te.progress / 100;
+    return rs >= 2 ? 1 : (progress - rs);
 }
 
 async function notify_impl(emails, header, content) {
