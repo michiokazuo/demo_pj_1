@@ -320,23 +320,27 @@ function viewTask() {
                             first = `<td>${dataFilter(taskToEmployees[i].employee.id + "."
                                 + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
-                                <td><button type="button" class="btn btn-danger ${taskToEmployees[i].progress !== 0 ? 'pause-employee' : 'delete-employee'}"
-                                ${(taskToEmployees[i].paused || taskToEmployees[i].task.completeDate) ? `disabled` : ''}>`
-                                + `${taskToEmployees[i].paused ? 'Đã tạm dừng'
-                                    : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng`
-                                        : `<i class="far fa-trash-alt"></i> Xóa`)}` +
-                                `</button></td>`;
+                                <td>`
+                                + `${taskToEmployees[i].task.completeDate ? `<i class="text-success far fa-check-circle fa-2x"></i>` : `<button type="button" class="btn btn-danger ${taskToEmployees[i].progress !== 0 ? 'pause-employee' : 'delete-employee'}"
+                                ${taskToEmployees[i].paused ? `disabled` : ''}>`
+                                    + `${taskToEmployees[i].paused ? 'Đã tạm dừng'
+                                        : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng`
+                                            : `<i class="far fa-trash-alt"></i> Xóa`)}` +
+                                    `</button>`}`
+                                + `</td>`;
                         else
                             tmp += `<tr data-index="${index}" data-index-employee="${i}">
                                 <td>${dataFilter(taskToEmployees[i].employee.id + "."
                                 + taskToEmployees[i].employee.name)}</td>
                                 <td>${checkProgress(taskToEmployees[i])}</td>
-                                <td><button type="button" class="btn btn-danger ${taskToEmployees[i].progress !== 0 ? 'pause-employee' : 'delete-employee'}"
-                                ${(taskToEmployees[i].paused || taskToEmployees[i].task.completeDate) ? `disabled` : ''}>`
-                                + `${taskToEmployees[i].paused ? 'Đã tạm dừng'
-                                    : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng`
-                                        : `<i class="far fa-trash-alt"></i> Xóa`)}` +
-                                `</button></td>
+                                <td>`
+                                + `${taskToEmployees[i].task.completeDate ? `<i class="text-success far fa-check-circle fa-2x"></i>` : `<button type="button" class="btn btn-danger ${taskToEmployees[i].progress !== 0 ? 'pause-employee' : 'delete-employee'}"
+                                ${taskToEmployees[i].paused ? `disabled` : ''}>`
+                                    + `${taskToEmployees[i].paused ? 'Đã tạm dừng'
+                                        : (taskToEmployees[i].progress !== 0 ? `<i class="far fa-pause-circle"></i> Tạm dừng`
+                                            : `<i class="far fa-trash-alt"></i> Xóa`)}` +
+                                    `</button>`}`
+                                + `</td>
                             </tr>`;
                     }
                 }
@@ -347,23 +351,18 @@ function viewTask() {
                                 <td rowspan="${length}">${dataFilter(new Date(task.createDate).toLocaleDateString())}</td>
                                 <td rowspan="${length}">${checkStatus(task.createDate, task.endDate, task.completeDate)}</td>`
                     + first +
-                    `<td rowspan="${length}" width="150px">
-                                <button type="button" class="btn btn-warning m-1 task-to-employee"
-                                ${task.completeDate ? `disabled` : ''}>
-                                    <i class="fas fa-tasks"></i>
-                                    Giao việc
-                                </button>
-                                <button type="button" class="btn btn-info m-1 update-task">
-                                    <i class="far fa-eye"></i>
-                                    Chi tiết
-                                </button>
-                                <button type="button" class="btn btn-danger m-1 delete-task"
-                                ${task.completeDate ? `disabled` : ''}>
-                                    <i class="fas fa-trash-alt"></i>
-                                    Xóa
-                                </button>
-                                </td>
-                                </tr>` + tmp;
+                    `<td rowspan="${length}" width="150px">`
+                    + `${task.completeDate ? `` : `<button type="button" class="btn btn-warning m-1 task-to-employee">
+                                    <i class="fas fa-tasks"></i> Giao việc
+                                </button>`}`
+                    + `<button type="button" class="btn btn-info m-1 update-task">
+                                    <i class="far fa-eye"></i> Chi tiết
+                                </button>`
+                    + `${task.completeDate ? `` : `<button type="button" class="btn btn-danger m-1 delete-task">
+                                    <i class="fas fa-trash-alt"></i> Xóa
+                                </button>`}`
+                    + `</td></tr>`
+                    + tmp;
             }
             return ``;
         }).join("");
@@ -371,21 +370,21 @@ function viewTask() {
 
     tableData.html(rs);
     if (checkComplete) {
-        btnAddTask.prop('disabled', true);
+        // btnAddTask.prop('disabled', true);
         $(".delete-employee").prop('disabled', true);
         $(".task-to-employee").prop('disabled', true);
         $(".delete-task").prop('disabled', true);
         btnConfirmSave.prop('disabled', true);
         btnConfirmDelete.prop('disabled', true);
 
-        // btnAddTask ? btnAddTask.remove() : {};
-        // $(".delete-employee") ? $(".delete-employee").remove() : {};
-        // $(".task-to-employee") ? $(".task-to-employee").remove() : {};
-        // $(".delete-task") ? $(".delete-task").remove() : {};
+        btnAddTask ? btnAddTask.remove() : {};
+        $(".delete-employee") ? $(".delete-employee").remove() : {};
+        $(".task-to-employee") ? $(".task-to-employee").remove() : {};
+        $(".delete-task") ? $(".delete-task").remove() : {};
         // btnConfirmSave ? btnConfirmSave.remove() : {};
         $("#modal-delete-employee") ? $("#modal-delete-employee").remove() : {};
         $("#modal-delete") ? $("#modal-delete").remove() : {};
-        $("#modal-task") ? $("#modal-task").remove() : {};
+        // $("#modal-task") ? $("#modal-task").remove() : {};
         $("#modal-employee") ? $("#modal-employee").remove() : {};
     }
     updateTask();

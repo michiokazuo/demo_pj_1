@@ -73,23 +73,21 @@ function viewProject() {
                         <td>${dataFilter(new Date(project.createDate).toLocaleDateString())}</td>
                         <td>${checkStatus(project.createDate, project.endDate, project.completeDate)}</td>
                         <td>
-                        <a target="_blank" href="du-an/cong-viec-thanh-phan?projectId=${project.id}" 
-                        class="text-decoration-none text-light btn btn-success m-1">
-                                    <i class="fas fa-tasks"></i>
-                                    <span class="text-light"> Xem </span>
-                                </a>
+                            <a target="_blank" href="du-an/cong-viec-thanh-phan?projectId=${project.id}" 
+                            class="text-decoration-none text-light btn btn-success m-1">
+                                        <i class="fas fa-tasks"></i>
+                                        <span class="text-light"> Xem </span>
+                            </a>
                         </td>
                             <td>
                                 <button type="button" class="btn btn-info m-1 update-project">
                                     <i class="far fa-eye"></i>
                                     Chi tiết
-                                </button>
-                                <button type="button" class="btn btn-danger m-1 delete-project"
-                                ${project.completeDate ? `disabled` : ''}>
-                                    <i class="fas fa-trash-alt" ></i>
-                                    Xóa
-                                </button>
-                            </td>
+                                </button>`
+                    + `${project.completeDate ? `` : `<button type="button" class="btn btn-danger m-1 delete-project">
+                                    <i class="fas fa-trash-alt" ></i> Xóa
+                                </button>`}`
+                    + `</td>
                         </tr>`;
             }
             return ``;

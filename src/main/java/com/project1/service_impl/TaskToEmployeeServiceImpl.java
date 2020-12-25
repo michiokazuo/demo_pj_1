@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import com.project1.config.AppConfig;
 import com.project1.convert.Convert;
-import com.project1.service.EmployeeService;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ import com.project1.entities.data.TaskToEmployee;
 import com.project1.repository.EmployeeRepository;
 import com.project1.repository.TaskRepository;
 import com.project1.repository.TaskToEmployeeRepository;
-import com.project1.service.TaskService;
 import com.project1.service.TaskToEmployeeService;
 
 import lombok.AllArgsConstructor;
