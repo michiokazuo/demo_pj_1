@@ -554,8 +554,8 @@ function confirmDeleteTask() {
                 emails += (" " + item.paused ? '' : item.employee.email);
             })
             await notify_impl(emails.trim(), "Cập nhật lại công việc",
-                `Công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
-                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> mà bạn đang tham gia đã bị xóa
+                `Công việc <b>${taskDTO.task.name}</b> 
+                    thuộc dự án <b>${taskDTO.task.project.name}</b> mà bạn đang tham gia đã bị xóa
                    vào lúc ${new Date().toLocaleString()}.<br>
                          Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
                          Chúc bạn làm việc thật hiệu quả!!!`);
@@ -699,7 +699,7 @@ async function search_sort() {
 function checkSave(task) {
     // let msDay = 24 * 60 * 60;
     let check = false;
-    let val = 'Logic ngày có vấn đế mời nhập lại!';
+    let val = `Logic ngày có vấn đế (hoặc thời hạn công việc phải nằm trong thời gian của dự án).<br> Mời nhập lại!!!`;
 
     let createDate = new Date(task.task.createDate);
     let endDate = new Date(task.task.endDate);
