@@ -144,7 +144,7 @@ function confirmSaveEmployee() {
                     });
             } else {
                 mess = "Thêm không thành công!!!";
-                await employeeInsert(employeeDTO, 1)// mac dinh la user
+                await employeeInsert(employeeDTO)// mac dinh la user
                     .then(function (rs) {
                         if (rs.status === 200) {
                             listEmployee.push(rs.data);
@@ -207,7 +207,7 @@ function confirmDeleteEmployee() {
         $("#modal-delete").modal("hide");
         alertReport(check, mess);
         if(check)
-            await notify_impl(valEmail, "Thông báo nghỉ việc",
+            await notify_impl(employee.email, "Thông báo nghỉ việc",
                 `Cảm ơn tình cảm của bạn đã dành cho chúng tôi trong thời gian qua. <br>
                          Chúc bạn thành công tiếp tục tiến về phía trước!!!`);
     });

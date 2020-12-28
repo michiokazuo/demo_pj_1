@@ -92,7 +92,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDTO insert(EmployeeDTO employeeDTO) throws Exception {
         if (employeeDTO == null || employeeDTO.getEmployee() == null
-                || employeeRepository.existsByEmailOrPhoneAndDeletedFalse(employeeDTO.getEmployee().getEmail()
+                || employeeRepository.existsByEmailAndDeletedFalseOrPhoneAndDeletedFalse(employeeDTO.getEmployee().getEmail()
                 , employeeDTO.getEmployee().getPhone())) return null;
 
         Employee employee = employeeDTO.getEmployee();

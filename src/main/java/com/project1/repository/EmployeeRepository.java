@@ -24,6 +24,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     Boolean existsByEmailOrPhoneAndDeletedFalse(String email, String phone);
 
+    Boolean existsByEmailAndDeletedFalseOrPhoneAndDeletedFalse(String email, String phone);
+
     Boolean existsByEmailOrPhoneAndIdNotAndDeletedFalse(String email, String phone, Integer id);
 
     List<Employee> findByEmailOrPhoneAndDeletedFalse(String email, String phone);

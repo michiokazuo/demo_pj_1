@@ -282,18 +282,18 @@ function updateProgress() {
             if (check) {
                 let emails = "";
                 listTask[indexTask - 0].taskToEmployees.forEach(item => {
-                    emails += (" " + (item.paused ? '' : item.employee.email));
+                    emails += (" " + (item.paused && checkInsert ? '' : item.employee.email));
                 })
+                await loadEmployee();
+                $("#modal-update-progress").modal("hide");
+                viewEmployee();
+                if (checkInsert) $("#modal-employee").modal("show");
                 await notify_impl(emails.trim(), "Cập nhật lại công việc",
                     `Bạn vừa được quản lý cập nhật công việc <b>${listTask[indexTask - 0].task.name}</b> 
                     thuộc dự án <b>${listTask[indexTask - 0].task.project.name}</b> 
                    vào lúc ${new Date().toLocaleString()}.<br>
                          Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
                          Chúc bạn làm việc thật hiệu quả!!!`);
-                await loadEmployee();
-                $("#modal-update-progress").modal("hide");
-                viewEmployee();
-                if (checkInsert) $("#modal-employee").modal("show");
                 viewTask();
             }
         }
@@ -555,7 +555,6 @@ function confirmDeleteTask() {
             taskDTO.taskToEmployees.forEach(item => {
                 emails += (" " + (item.paused ? '' : item.employee.email));
             })
-            console.log(emails)
             await notify_impl(emails.trim(), "Xóa công việc",
                 `Công việc <b>${taskDTO.task.name}</b> 
                     thuộc dự án <b>${taskDTO.task.project.name}</b> mà bạn đang tham gia đã bị xóa
