@@ -548,6 +548,18 @@ function confirmDeleteTask() {
         await loadEmployee();
         viewEmployee();
         alertReport(check, mess);
+        if(check){
+            let emails = "";
+            taskDTO.taskToEmployees.forEach(item => {
+                emails += (" " + item.paused ? '' : item.employee.email);
+            })
+            await notify_impl(emails.trim(), "Cập nhật lại công việc",
+                `Công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
+                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> mà bạn đang tham gia đã bị xóa
+                   vào lúc ${new Date().toLocaleString()}.<br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
+        }
     });
 }
 
