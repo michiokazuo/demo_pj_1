@@ -206,6 +206,10 @@ function confirmDeleteEmployee() {
         viewEmployee();
         $("#modal-delete").modal("hide");
         alertReport(check, mess);
+        if(check)
+            await notify_impl(valEmail, "Thông báo nghỉ việc",
+                `Cảm ơn tình cảm của bạn đã dành cho chúng tôi trong thời gian qua. <br>
+                         Chúc bạn thành công tiếp tục tiến về phía trước!!!`);
     });
 }
 
