@@ -17,6 +17,7 @@ public class MailController {
                                                @RequestParam("header") String header,
                                                @RequestParam("content") String content) {
         try {
+            System.out.println(emails + "\n" + header + "\n" + content);
             if (sendEmailService.sendHtmlMail(emails.split(" "), header, content))
                 return ResponseEntity.ok("Notify Complete");
         } catch (Exception e) {

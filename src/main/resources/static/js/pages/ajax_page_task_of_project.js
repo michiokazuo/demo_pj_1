@@ -178,8 +178,10 @@ function taskToEmployee() {
                     checkInsertAgain = false;
                     if (!listTask[indexTask - 0].taskToEmployees) listTask[indexTask - 0].taskToEmployees = [];
                     for (let te of listTask[indexTask - 0].taskToEmployees) {
-                        if (te.task.id === rs.data.task.id && te.employee.id === rs.data.employee.id)
+                        if (te.task.id === rs.data.task.id && te.employee.id === rs.data.employee.id) {
                             checkInsertAgain = true;
+                            break;
+                        }
                     }
                     if (checkInsertAgain)
                         listTask[indexTask - 0].taskToEmployees =
@@ -278,21 +280,21 @@ function updateProgress() {
             alertReport(check, mess);
             alert("Cập nhật " + (check ? "thành công." : "thất bại!"));
             if (check) {
+                let emails = "";
+                listTask[indexTask - 0].taskToEmployees.forEach(item => {
+                    emails += (" " + (item.paused ? '' : item.employee.email));
+                })
+                await notify_impl(emails.trim(), "Cập nhật lại công việc",
+                    `Bạn vừa được quản lý cập nhật công việc <b>${listTask[indexTask - 0].task.name}</b> 
+                    thuộc dự án <b>${listTask[indexTask - 0].task.project.name}</b> 
+                   vào lúc ${new Date().toLocaleString()}.<br>
+                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
+                         Chúc bạn làm việc thật hiệu quả!!!`);
                 await loadEmployee();
                 $("#modal-update-progress").modal("hide");
                 viewEmployee();
                 if (checkInsert) $("#modal-employee").modal("show");
                 viewTask();
-                let emails = "";
-                listTE.forEach(item => {
-                    emails += (" " + item.paused ? '' : item.employee.email);
-                })
-                await notify_impl(emails.trim(), "Cập nhật lại công việc",
-                    `Bạn vừa được quản lý cập nhật công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
-                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> 
-                   vào lúc ${new Date().toLocaleString()}.<br>
-                         Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
-                         Chúc bạn làm việc thật hiệu quả!!!`);
             }
         }
     })
@@ -548,12 +550,13 @@ function confirmDeleteTask() {
         await loadEmployee();
         viewEmployee();
         alertReport(check, mess);
-        if(check){
+        if (check && taskDTO.taskToEmployees && taskDTO.taskToEmployees.length > 0) {
             let emails = "";
             taskDTO.taskToEmployees.forEach(item => {
-                emails += (" " + item.paused ? '' : item.employee.email);
+                emails += (" " + (item.paused ? '' : item.employee.email));
             })
-            await notify_impl(emails.trim(), "Cập nhật lại công việc",
+            console.log(emails)
+            await notify_impl(emails.trim(), "Xóa công việc",
                 `Công việc <b>${taskDTO.task.name}</b> 
                     thuộc dự án <b>${taskDTO.task.project.name}</b> mà bạn đang tham gia đã bị xóa
                    vào lúc ${new Date().toLocaleString()}.<br>
@@ -579,6 +582,7 @@ function confirmDeleteEmployee() {
     btnDeleteEmployee.click(async function () {
         let mess = "Xóa không thành công!!!";
         let check = false;
+        let email = taskDTO.taskToEmployees[indexEmployee - 0].employee.email;
 
         await taskToEmployeeDelete(taskDTO.taskToEmployees[indexEmployee - 0])
             .then(function (rs) {
@@ -601,9 +605,9 @@ function confirmDeleteEmployee() {
         viewEmployee();
         alertReport(check, mess);
         if (check)
-            await notify_impl(taskDTO.taskToEmployees[indexEmployee - 0].employee.email, "Xóa công việc",
-                `Bạn vừa bị xóa khỏi công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
-                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> 
+            await notify_impl(email, "Xóa tham gia công việc",
+                `Bạn vừa bị xóa khỏi công việc <b>${taskDTO.task.name}</b> 
+                    thuộc dự án <b>${taskDTO.task.project.name}</b> 
                    vào lúc ${new Date().toLocaleString()}.<br>
                          Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
                          Chúc bạn làm việc thật hiệu quả!!!`);
@@ -645,8 +649,8 @@ function confirmPauseEmployee() {
         alertReport(check, mess);
         if (check) {
             await notify_impl(taskDTO.taskToEmployees[indexEmployee - 0].employee.email, "Tạm dừng công việc",
-                `Bạn vừa bị tạm dừng công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
-                    thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> 
+                `Bạn vừa bị tạm dừng công việc <b>${taskDTO.task.name}</b> 
+                    thuộc dự án <b>${taskDTO.task.project.name}</b> 
                    vào lúc ${new Date().toLocaleString()}.<br>
                          Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
                          Chúc bạn làm việc thật hiệu quả!!!`);
