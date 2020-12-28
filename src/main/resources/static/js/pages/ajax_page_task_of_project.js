@@ -285,7 +285,7 @@ function updateProgress() {
                 viewTask();
                 let emails = "";
                 listTE.forEach(item => {
-                    emails += (" " + item.employee.email);
+                    emails += (" " + item.paused ? '' : item.employee.email);
                 })
                 await notify_impl(emails.trim(), "Cập nhật lại công việc",
                     `Bạn vừa được quản lý cập nhật công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
@@ -632,14 +632,14 @@ function confirmPauseEmployee() {
         $("#modal-pause-employee").modal("hide");
         alertReport(check, mess);
         if (check) {
-            viewDataProgress();
-            viewTask();
             await notify_impl(taskDTO.taskToEmployees[indexEmployee - 0].employee.email, "Tạm dừng công việc",
                 `Bạn vừa bị tạm dừng công việc <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.name}</b> 
                     thuộc dự án <b>${taskDTO.taskToEmployees[indexEmployee - 0].task.project.name}</b> 
                    vào lúc ${new Date().toLocaleString()}.<br>
                          Click vào đây để vào <a href="http://localhost:8080/"><b>Trang chủ</b></a><br>
                          Chúc bạn làm việc thật hiệu quả!!!`);
+            viewDataProgress();
+            viewTask();
         }
     })
 }
