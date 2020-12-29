@@ -151,7 +151,7 @@ function viewTask(projectDTO, i) {
         },
         title: {
             text: ('Tiến độ: ' + progress_pj + "%. "
-                + (projectDTO.project.completeDate ? ('Đánh giá: ' + Math.round(5 * (taskValid / num_of_task) * 10 + Number.EPSILON) / 10 + '/5.') : ''))
+                + (projectDTO.project.completeDate ? ('Đánh giá: ' + Math.round(5 * (taskValid / num_of_task) * 10 + Number.EPSILON) / 10 + '/5') : ''))
         },
         xAxis: {
             categories: [projectDTO.project.name]
@@ -330,7 +330,7 @@ function showChart() {
             },
             title: {
                 text: ('Đề xuất đánh giá : ' + (num_of_task
-                    ? Math.round(5 * ((percentInProgress + percentInValid > 0) ? (percentInProgress + percentInValid) : 0) / 2 * 10 + Number.EPSILON) / 10 + '/5.'
+                    ? Math.round(5 * ((percentInProgress + percentInValid > 0) ? (percentInProgress + percentInValid) : 0) / 2 * 10 + Number.EPSILON) / 10 + '/5'
                     : 'Hiện tại chưa thể đánh giá do chưa thực hiện công việc nào.'))
             },
             xAxis: {
